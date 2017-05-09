@@ -11,4 +11,8 @@ package fr.aquarium;
  */
 public class Treshold {
     
+    public int SensorId; 
+    public double min;
+    public double max;
+    
 }
