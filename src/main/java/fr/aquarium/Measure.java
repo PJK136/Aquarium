@@ -13,8 +13,8 @@ import java.util.Date;
 public class Measure {
     
     public Date measureDate;
-    public double Value;
-    public double RawValue;
-    public int SensorId;
+    public double value;
+    public double rawValue;
+    public int sensorId;
     
 }

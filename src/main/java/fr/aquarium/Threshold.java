@@ -9,9 +9,9 @@ package fr.aquarium;
  *
  * @author mduraffour
  */
-public class Treshold {
+public class Threshold {
     
-    public int SensorId; 
+    public int sensorId; 
     public double min;
     public double max;
     
