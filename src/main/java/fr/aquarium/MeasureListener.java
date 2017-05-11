@@ -1,5 +1,5 @@
 package fr.aquarium;
 
-public class MeasureListener {
-    
+public interface MeasureListener {
+    void measureReceived(MeasureEvent event);
 }
