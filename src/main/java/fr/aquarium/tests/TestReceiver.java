@@ -1,5 +1,6 @@
-package fr.aquarium;
+package fr.aquarium.tests;
 
+import fr.aquarium.Receiver;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
