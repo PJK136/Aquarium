@@ -7,11 +7,23 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mysql.cj.jdbc.MysqlDataSource;
 import java.sql.SQLException;
+
 public class Database {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     
+    private MysqlDataSource dataSource;
+    
     public Database(String serverName, int port, String database, String user, String password) throws SQLException {
+        this.dataSource = new MysqlDataSource();
+        this.dataSource.setServerName(serverName);
+        this.dataSource.setPort(port);
+        this.dataSource.setDatabaseName(database);
+        this.dataSource.setUser(user);
+        this.dataSource.setPassword(password);
+        
+        this.dataSource.getConnection(); //Test de connection
     }
 
     public Sensor querySensor(int sensorId) {
