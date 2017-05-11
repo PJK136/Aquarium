@@ -27,6 +27,7 @@ public class Database {
         this.dataSource.setPassword(password);
         
         this.dataSource.getConnection(); //Test de connection
+        logger.info("Connexion réussie à la BDD {}", database);
     }
 
     public Sensor querySensor(int sensorId) {
