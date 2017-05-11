@@ -8,7 +8,7 @@ public final class Measure {
     final private double rawValue;
     final private double value;
     
-    public Measure(int sensorId, Calendar date, double value, double rawValue) {
+    public Measure(int sensorId, Calendar date, double rawValue, double value) {
         this.sensorId = sensorId;
         this.date = (Calendar) date.clone();
         this.rawValue = rawValue;
