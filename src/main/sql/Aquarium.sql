@@ -10,8 +10,8 @@ CREATE TABLE Fish (
 CREATE TABLE Threshold (
 	FishId tinyint not null,
     SensorId tinyint not null,
-    Min double,
-    Max double,
+    Minimum double,
+    Maximum double,
     FOREIGN KEY (FishId) references Fish(FishId),
     FOREIGN KEY (SensorId) references Sensor(SensorId));
     
