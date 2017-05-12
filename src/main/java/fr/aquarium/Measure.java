@@ -5,10 +5,10 @@ import java.util.Calendar;
 public final class Measure {
     final private int sensorId;
     final private Calendar date;
-    final private double rawValue;
+    final private int rawValue;
     final private double value;
     
-    public Measure(int sensorId, Calendar date, double rawValue, double value) {
+    public Measure(int sensorId, Calendar date, int rawValue, double value) {
         this.sensorId = sensorId;
         this.date = (Calendar) date.clone();
         this.rawValue = rawValue;
@@ -23,7 +23,7 @@ public final class Measure {
         return (Calendar) date.clone();
     }
 
-    public double getRawValue() {
+    public int getRawValue() {
         return rawValue;
     }
         
