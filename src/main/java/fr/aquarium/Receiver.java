@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Calendar;
+import java.util.LinkedList;
 import jssc.SerialPortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,25 +117,24 @@ public class Receiver implements Runnable {
             try {
                 while ((line = vcpInput.readLine()) != null) {
                     logger.info("Data from Arduino : {}", line);
-                    int[] measuresValues = new int[8];
-                    int i=0;
-                    int j=0;
-                    line.replaceAll(" ","");
-                    String[] tempo;
-                    tempo = line.split(",");
-
-                    //measuresValues[0] = 
-
-                    /* Votre but : envoyer toutes les mesures reçues avec sendMeasures(measures);
-                    List<Measure> measures = new LinkedList<Measure>();
-                    
-                    Pour chaque mesure de chaque capteur :
-                    double value = computeRealValue(sensorId, rawValue);
-                    measures.add(new Measure(sensorId, date, rawValue, value));
-                    
-                    À la fin :
-                    sendMeasures(measures);
+                    /*line = line.replaceAll("Debut de l'ecoute...","");
+                    line = line.replaceAll("Arret","");
+                    line = line.replaceAll("Ecoute","");
                     */
+                    if((!line.equals("Debut de l'ecoute..."))&&(!line.equals("Arret"))&&(!line.equals("Ecoute"))){                    
+                        line = line.replaceAll(" ","");
+                        String[] tempo;
+                        tempo = line.split(",");
+                        Calendar date = Calendar.getInstance();
+                        date.add(Calendar.MINUTE,30*Integer.parseInt(tempo[0]));
+                        String[] tempo2;
+                        List<Measure> measures = new LinkedList<Measure>();
+                        for(int i=1; i<tempo.length; i++){
+                            tempo2=tempo[i].split(";");
+                            measures.add(new Measure(Integer.parseInt(tempo2[0]),date,Integer.parseInt(tempo2[1]),computeRealValue(Integer.parseInt(tempo2[0]),Integer.parseInt(tempo2[1]))));
+                        }
+                        sendMeasures(measures);
+                    }                  
                 }
             } catch (IOException ex) {
                 logger.error(ex.getClass().getName(), ex);
@@ -150,14 +151,16 @@ public class Receiver implements Runnable {
      */
     private double computeRealValue(int sensorId, int rawValue) {
         switch (sensorId) {
-            //TODO
-            
-            /* Exemple :
-            case 1: //Capteur de température par exemple
-                return rawValue/16.;
-            case 2: //Autre capteur avec id 2
-                return 3.*rawValue/4.;
-            */
+            case 1: //Capteur luminosité
+                return rawValue;
+            case 2: //Capteur pH
+                return rawValue;
+            case 3: //Capteur débit
+                return rawValue/10;
+            case 4: //Capteur niveau
+                return rawValue;
+            case 5: //Capteur température
+                return rawValue;
             default:
                 logger.warn("Capteur {} inconnu, utilisation de la valeur brute : {}", sensorId, rawValue);
                 return rawValue;

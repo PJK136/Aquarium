@@ -60,10 +60,10 @@ public class ArduinoUsbChannel {
 
         //logger.debug("Opening VCP...");
         serialPort.openPort();//Open serial port
-        serialPort.setParams(SerialPort.BAUDRATE_9600,
+        serialPort.setParams(SerialPort.BAUDRATE_115200,
                 SerialPort.DATABITS_8,
                 SerialPort.STOPBITS_1,
-                SerialPort.PARITY_NONE);//Set params. Also you can set params by this string: serialPort.setParams(9600, 8, 1, 0);
+                SerialPort.PARITY_NONE);//Set params. Also you can set params by this string: serialPort.setParams(115200, 8, 1, 0);
 
         int mask = SerialPort.MASK_RXCHAR; // + SerialPort.MASK_CTS + SerialPort.MASK_DSR;//Prepare mask
         serialPort.setEventsMask(mask);//Set mask
