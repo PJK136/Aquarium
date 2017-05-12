@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -91,13 +92,15 @@ public class Database {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             //Ici, on fait 1 requête pour ajouter toutes les mesures d'un coup
-            //PreparedStatement ps = connection.prepareStatement("Ma requête SQL");
-            //for (Measures measure : measures) {
-            //    ps.setInt(1, xxx);
-            //    ps.setDouble(2, xxx);
-            //    etc.
-            //    ps.addBatch();
-            //}
+            String query="insert into measure (SensorId, MeasureDate, RawValue, Value) values(?,?,?,?)";
+            PreparedStatement ps = connection.prepareStatement(query);
+            for (Measure measure : measures) {
+                ps.setInt(1, measure.getSensorId());
+                ps.setDate(2, new Date(measure.getDate().getTimeInMillis()));
+                ps.setInt(3, measure.getRawValue());
+                ps.setDouble(4, measure.getValue());
+                ps.addBatch();
+            }
             connection.commit();
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);
