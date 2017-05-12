@@ -17,7 +17,7 @@ CREATE TABLE Threshold (
     
 CREATE TABLE Measure (
 	SensorId tinyint not null,
-    MeasureDate date not null,
+    MeasureDate datetime not null,
     RawValue smallint not null,
     Value double not null,
     primary key (SensorId, MeasureDate),
@@ -29,6 +29,6 @@ CREATE TABLE EventType (
     
 CREATE TABLE Event (
 	EventId smallint not null,
-    DateEvent date not null,
+    DateEvent datetime not null,
     primary key (EventId, DateEvent),
     foreign key (EventId) references EventType(EventId));
