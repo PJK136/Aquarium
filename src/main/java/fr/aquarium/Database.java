@@ -75,7 +75,7 @@ public class Database {
             ps.setDate(2, new Date(stop.getTimeInMillis()));
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                measures.add(new Measure(rs.getInt("sensorId"), dateToCalendar(rs.getDate("MeasureDate")), rs.getDouble("rawValue"), rs.getDouble("value")));
+                measures.add(new Measure(rs.getInt("sensorId"), dateToCalendar(rs.getDate("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
             }
             connection.close();
             return measures;
@@ -94,7 +94,7 @@ public class Database {
             ps.setDate(3, new Date(stop.getTimeInMillis()));
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                measures.add(new Measure(sensorId, dateToCalendar(rs.getDate("MeasureDdate")), rs.getDouble("rawValue"), rs.getDouble("value")));
+                measures.add(new Measure(sensorId, dateToCalendar(rs.getDate("MeasureDdate")), rs.getInt("rawValue"), rs.getDouble("value")));
             }
             connection.close();
             return measures;
