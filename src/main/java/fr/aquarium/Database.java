@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -61,9 +61,9 @@ public class Database {
         }
     }
     
-    private static Calendar dateToCalendar(Date date) {
+    private static Calendar timestampToCalendar(Timestamp timestamp) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
+        calendar.setTime(timestamp);
         return calendar;
     }
     
@@ -71,11 +71,11 @@ public class Database {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<Measure>();
             PreparedStatement ps = connection.prepareStatement("SELECT sensorId, MeasureDate, rawValue, value " + "FROM Measure " + "WHERE MeasureDate>? and MeasureDate<?;");
-            ps.setDate(1, new Date(start.getTimeInMillis()));
-            ps.setDate(2, new Date(stop.getTimeInMillis()));
+            ps.setTimestamp(1, new Timestamp(start.getTimeInMillis()));
+            ps.setTimestamp(2, new Timestamp(stop.getTimeInMillis()));
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                measures.add(new Measure(rs.getInt("sensorId"), dateToCalendar(rs.getDate("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
+                measures.add(new Measure(rs.getInt("sensorId"), timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
             }
             connection.close();
             return measures;
@@ -90,11 +90,11 @@ public class Database {
             List<Measure> measures = new LinkedList<Measure>();
             PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE sensorId=? and MeasureDate>? and MeasureDate<?;");
             ps.setInt(1, sensorId);
-            ps.setDate(2, new Date(start.getTimeInMillis()));
-            ps.setDate(3, new Date(stop.getTimeInMillis()));
+            ps.setTimestamp(2, new Timestamp(start.getTimeInMillis()));
+            ps.setTimestamp(3, new Timestamp(stop.getTimeInMillis()));
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                measures.add(new Measure(sensorId, dateToCalendar(rs.getDate("MeasureDdate")), rs.getInt("rawValue"), rs.getDouble("value")));
+                measures.add(new Measure(sensorId, timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
             }
             connection.close();
             return measures;
@@ -104,22 +104,21 @@ public class Database {
         }
     }
     
-    public void insertMeasures(List<Measure> measures) {
-        try (Connection connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-            //Ici, on fait 1 requête pour ajouter toutes les mesures d'un coup
-            String query="insert into measure (SensorId, MeasureDate, RawValue, Value) values(?,?,?,?)";
-            PreparedStatement ps = connection.prepareStatement(query);
-            for (Measure measure : measures) {
-                ps.setInt(1, measure.getSensorId());
-                ps.setDate(2, new Date(measure.getDate().getTimeInMillis()));
-                ps.setInt(3, measure.getRawValue());
-                ps.setDouble(4, measure.getValue());
-                ps.addBatch();
-            }
-            connection.commit();
-        } catch (SQLException ex) {
-            logger.error(ex.getClass().getName(), ex);
+    public void insertMeasures(List<Measure> measures) throws SQLException {
+        Connection connection = dataSource.getConnection();
+        connection.setAutoCommit(false);
+        //Ici, on fait 1 requête pour ajouter toutes les mesures d'un coup
+        String query="insert into Measure (SensorId, MeasureDate, RawValue, Value) values(?,?,?,?)";
+        PreparedStatement ps = connection.prepareStatement(query);
+        for (Measure measure : measures) {
+            ps.setInt(1, measure.getSensorId());
+            ps.setTimestamp(2, new Timestamp(measure.getDate().getTimeInMillis()));
+            ps.setInt(3, measure.getRawValue());
+            ps.setDouble(4, measure.getValue());
+            ps.addBatch();
         }
+        
+        ps.executeBatch();
+        connection.commit();
     }
 }
