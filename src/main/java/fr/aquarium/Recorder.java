@@ -1,6 +1,8 @@
 package fr.aquarium;
 
 import java.lang.invoke.MethodHandles;
+import java.sql.SQLException;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,11 @@ public class Recorder implements MeasureListener {
     
     @Override
     public void measureReceived(MeasureEvent event) {
-        //TODO
+        try {
+            logger.info("Enregistrement de {} mesures", event.getMeasures().size());
+            database.insertMeasures(event.getMeasures());
+        } catch (SQLException ex) {
+            logger.error("Insertion des mesures impossible", ex);
+        }
     }
 }
