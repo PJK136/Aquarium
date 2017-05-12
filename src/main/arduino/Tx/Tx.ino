@@ -12,25 +12,35 @@ payload_t ppl[BUFFER_SIZE]; // Données non expédiées
 unsigned int wait = 3000;
 
 //Pour le débimètre 
-volatile int NbTopsFan; //measuring the rising edges of the signal
-int Calc;
+volatile int NbTopsFan = 0; //measuring the rising edges of the signal
 int hallsensor = 2;    //The pin location of the sensor
+
+int measureFlow() //Pour mesure le débit avec le débitmètre
+{
+  NbTopsFan = 0;   //Set NbTops to 0 ready for calculations
+  attachInterrupt(digitalPinToInterrupt(hallsensor), rpm, RISING); //interrupt is attached
+  delay (1000);   //Wait 1 second
+  detachInterrupt(digitalPinToInterrupt(hallsensor)); //interrupt is detached
+  int Calc = (NbTopsFan * 60 / 5.5); //(Pulse frequency x 60) / 5.5Q, = flow rate in L/hour
+  return Calc;
+}
 
 //Pour le capteur de luminosité n°1
 int sensorLumPin = A2; // select the input pin for LDR
 
-void rpm ()     //This is the function that the interupt calls
+void rpm()     //This is the function that the interupt calls
 {
-    NbTopsFan++;  //This function measures the rising and falling edge of the hall effect sensors signal
+  NbTopsFan++;  //This function measures the rising and falling edge of the hall effect sensors signal
 }
 
 void setup() {
   //Pour le capteur de débit
   pinMode(hallsensor, INPUT); //initializes digital pin 2 as an input
-  attachInterrupt(0, rpm, RISING); //and the interrupt is attached
-  //Pour la transmission en elle-même
+  
+  //Pour la transmission série
   Serial.begin(115200);    // Initialiser la communication série 
   Serial.println(F("Debut de la surveillance..."));
+  
   //Radio
   radio.begin();
   radio.setChannel(CHANNEL);
@@ -56,13 +66,7 @@ void loop(void) {
     //Pour la lumière
     ppl[pos].lum=analogRead(sensorLumPin);
     
-    //Pour le débimètre (la mesure)
-    NbTopsFan = 0;   //Set NbTops to 0 ready for calculations
-    sei();      //Enables interrupts
-    delay (1000);   //Wait 1 second
-    cli();      //Disable interrupts
-    Calc = (NbTopsFan * 60 / 5.5); //(Pulse frequency x 60) / 5.5Q, = flow rate in L/hour
-    ppl[pos].flow=Calc;           //On récupère la valeur du débit en Litre/heure
+    ppl[pos].flow=measureFlow();  //On récupère la valeur du débit en Litre/heure
     
     ppl[pos].pH=random(0,1023);
     ppl[pos].level=random(0,1023);
