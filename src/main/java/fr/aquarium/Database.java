@@ -48,6 +48,21 @@ public class Database {
         }
     }
     
+    public List<Sensor> querySensors() {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Sensor> sensors = new LinkedList<Sensor>();
+            String query = "select * from Sensor";
+            ResultSet rs = connection.createStatement().executeQuery(query);
+            while (rs.next()) {
+                sensors.add(new Sensor(rs.getInt("SensorId"), rs.getString("SensorName"),rs.getString("Unit")));
+            }
+            return sensors;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
+    }
+    
     public Threshold queryThreshold(int fishId, int sensorId) {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("select Minimum, Maximum from Threshold where FishId=? and SensorId=?;");
