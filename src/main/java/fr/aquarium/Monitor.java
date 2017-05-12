@@ -10,9 +10,9 @@ public class Monitor implements MeasureListener {
     private final int fishId;
     private final Database database;
 
-    public Monitor(Database database, int FishId) {
+    public Monitor(Database database, int fishId) {
         this.database = database;
-        this.fishId=FishId;
+        this.fishId = fishId;
     }
     
     @Override
@@ -23,6 +23,10 @@ public class Monitor implements MeasureListener {
         for (Measure measure : measures){
             threshold = database.queryThreshold(this.fishId,measure.getSensorId());
             sensor = database.querySensor(measure.getSensorId());
+            
+            if (threshold == null || sensor == null)
+                continue;
+            
             double value = measure.getValue();
             if (value>threshold.getMax()){
                 logger.error("La donnée {} est trop haute : {} {}",sensor.getName(), value, sensor.getUnit());

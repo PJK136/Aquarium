@@ -116,20 +116,27 @@ public class Receiver implements Runnable {
             try {
                 while ((line = vcpInput.readLine()) != null) {
                     logger.info("Data from Arduino : {}", line);
-                    if((!line.equals("Debut de l'ecoute..."))&&(!line.equals("Arret"))&&(!line.equals("Ecoute"))){                    
-                        line = line.replaceAll(" ","");
-                        String[] tempo;
-                        tempo = line.split(",");
-                        Calendar date = Calendar.getInstance();
-                        date.add(Calendar.MINUTE,(-30)*Integer.parseInt(tempo[0]));
-                        String[] tempo2;
-                        List<Measure> measures = new LinkedList<Measure>();
-                        for(int i=1; i<tempo.length; i++){
-                            tempo2=tempo[i].split(";");
-                            measures.add(new Measure(Integer.parseInt(tempo2[0]),date,Integer.parseInt(tempo2[1]),computeRealValue(Integer.parseInt(tempo2[0]),Integer.parseInt(tempo2[1]))));
+                    try {
+                        if((!line.equals("Debut de l'ecoute..."))&&(!line.equals("Arret"))&&(!line.equals("Ecoute"))){                    
+                            line = line.replaceAll(" ","");
+                            String[] tempo;
+                            tempo = line.split(",");
+                            Calendar date = Calendar.getInstance();
+                            date.add(Calendar.MINUTE,(-30)*Integer.parseInt(tempo[0]));
+                            String[] tempo2;
+                            List<Measure> measures = new LinkedList<Measure>();
+                            for(int i=1; i<tempo.length; i++) {
+                                tempo2=tempo[i].split(";");
+                                if (tempo2.length == 2)
+                                    measures.add(new Measure(Integer.parseInt(tempo2[0]),date,Integer.parseInt(tempo2[1]),computeRealValue(Integer.parseInt(tempo2[0]),Integer.parseInt(tempo2[1]))));
+                                else
+                                    logger.warn("Unknown data !");
+                            }
+                            sendMeasures(measures);
                         }
-                        sendMeasures(measures);
-                    }                  
+                    } catch (NumberFormatException ex) {
+                        logger.error(ex.getClass().getName(), ex);
+                    }
                 }
             } catch (IOException ex) {
                 logger.error(ex.getClass().getName(), ex);

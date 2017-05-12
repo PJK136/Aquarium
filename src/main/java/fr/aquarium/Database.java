@@ -34,12 +34,14 @@ public class Database {
 
     public Sensor querySensor(int sensorId) {
         try (Connection connection = dataSource.getConnection()) {
-            //TODO
-            String query = "select * from Sensors where SensorId=?";
+            String query = "select * from Sensor where SensorId=?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1,sensorId);
             ResultSet rs=ps.executeQuery();
-            return new Sensor(sensorId, rs.getString("name"),rs.getString("unit"));
+            if (rs.next())
+                return new Sensor(sensorId, rs.getString("SensorName"),rs.getString("Unit"));
+            else
+                return null;
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);
             return null;
@@ -52,9 +54,12 @@ public class Database {
             ps.setInt(1, fishId);
             ps.setInt(2, sensorId);
             ResultSet rs = ps.executeQuery();
-            int min = rs.getInt("min");
-            int max = rs.getInt("max");
-            return new Threshold(fishId, sensorId, min, max);
+            if (rs.next()) {
+                int min = rs.getInt("Minimum");
+                int max = rs.getInt("Maximum");
+                return new Threshold(fishId, sensorId, min, max);
+            } else
+                return null;
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);
             return null;
