@@ -126,7 +126,7 @@ public class Receiver implements Runnable {
                         String[] tempo;
                         tempo = line.split(",");
                         Calendar date = Calendar.getInstance();
-                        date.add(Calendar.MINUTE,30*Integer.parseInt(tempo[0]));
+                        date.add(Calendar.MINUTE,(-30)*Integer.parseInt(tempo[0]));
                         String[] tempo2;
                         List<Measure> measures = new LinkedList<Measure>();
                         for(int i=1; i<tempo.length; i++){
