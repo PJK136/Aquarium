@@ -69,13 +69,16 @@ public class Database {
     
     public List<Measure> queryMeasures(Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
-            //TODO
-            //List<Measure> measures = new LinkedList<Measure>();
-            //...
-            //measures.add(new Measure(sensorId, date, rawValue, value));
-            //...
-            //return measures;
-            return null;
+            List<Measure> measures = new LinkedList<Measure>();
+            PreparedStatement ps = connection.prepareStatement("SELECT sensorId, MeasureDate, rawValue, value " + "FROM Measure " + "WHERE MeasureDate>? and MeasureDate<?;");
+            ps.setDate(1, new Date(start.getTimeInMillis()));
+            ps.setDate(2, new Date(stop.getTimeInMillis()));
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                measures.add(new Measure(rs.getInt("sensorId"), dateToCalendar(rs.getDate("MeasureDate")), rs.getDouble("rawValue"), rs.getDouble("value")));
+            }
+            connection.close();
+            return measures;
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);
             return null;
@@ -83,9 +86,22 @@ public class Database {
     }
     
     public List<Measure> queryMeasures(int sensorId, Calendar start, Calendar stop) {
-        //TODO
-        //Idem que le précédent
-        return null;
+        try (Connection connection = dataSource.getConnection()) {
+            List<Measure> measures = new LinkedList<Measure>();
+            PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE sensorId=? and MeasureDate>? and MeasureDate<?;");
+            ps.setInt(1, sensorId);
+            ps.setDate(2, new Date(start.getTimeInMillis()));
+            ps.setDate(3, new Date(stop.getTimeInMillis()));
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                measures.add(new Measure(sensorId, dateToCalendar(rs.getDate("MeasureDdate")), rs.getDouble("rawValue"), rs.getDouble("value")));
+            }
+            connection.close();
+            return measures;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
     }
     
     public void insertMeasures(List<Measure> measures) {
