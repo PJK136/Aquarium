@@ -7,11 +7,11 @@ payload_t pl;
 
 unsigned long temps=micros();
 
-int ID_LUM =0;
-int ID_PH =1;
-int ID_FLOW=2;
-int ID_LVL=3;
-int ID_TEMP=4;
+int ID_LUM =1;
+int ID_PH =2;
+int ID_FLOW=3;
+int ID_LVL=4;
+int ID_TEMP=5;
 
 //Affichage des données simplifié
 

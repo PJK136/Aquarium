@@ -17,7 +17,7 @@ int Calc;
 int hallsensor = 2;    //The pin location of the sensor
 
 //Pour le capteur de luminosité n°1
-int sensorLumPin = A0; // select the input pin for LDR
+int sensorLumPin = A2; // select the input pin for LDR
 
 void rpm ()     //This is the function that the interupt calls
 {
