@@ -34,9 +34,11 @@ public class Database {
     public Sensor querySensor(int sensorId) {
         try (Connection connection = dataSource.getConnection()) {
             //TODO
-            //PreparedStatement ps = connection.prepareStatement("Ma requête SQL");
-            //return new Sensor(sensorId, name, unit);
-            return null;
+            String query = "select * from Sensors where SensorId=?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1,sensorId);
+            ResultSet rs=ps.executeQuery();
+            return new Sensor(sensorId, rs.getString("name"),rs.getString("unit"));
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);
             return null;
