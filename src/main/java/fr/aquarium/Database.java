@@ -60,6 +60,12 @@ public class Database {
         }
     }
     
+    private static Calendar dateToCalendar(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
+    }
+    
     public List<Measure> queryMeasures(Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
             //TODO
