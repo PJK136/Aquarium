@@ -1,7 +1,6 @@
 package fr.aquarium;
 
 import java.util.Calendar;
-import java.util.List;
 
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
@@ -46,9 +45,13 @@ public class Database {
     
     public Threshold queryThreshold(int fishId, int sensorId) {
         try (Connection connection = dataSource.getConnection()) {
-            //TODO
-            //return new Threshold(fishId, sensorId, fishId, fishId)
-            return null;
+            PreparedStatement ps = connection.prepareStatement("select Minimum, Maximum from Threshold where FishId=? and SensorId=?;");
+            ps.setInt(1, fishId);
+            ps.setInt(2, sensorId);
+            ResultSet rs = ps.executeQuery();
+            int min = rs.getInt("min");
+            int max = rs.getInt("max");
+            return new Threshold(fishId, sensorId, min, max);
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);
             return null;
