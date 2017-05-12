@@ -112,15 +112,10 @@ public class Receiver implements Runnable {
             BufferedReader vcpInput = new BufferedReader(new InputStreamReader(vcpChannel.getReader()));
 
             String line;
-            //Calendar dateMeasure=getInstance(); // A VERIFIER
 
             try {
                 while ((line = vcpInput.readLine()) != null) {
                     logger.info("Data from Arduino : {}", line);
-                    /*line = line.replaceAll("Debut de l'ecoute...","");
-                    line = line.replaceAll("Arret","");
-                    line = line.replaceAll("Ecoute","");
-                    */
                     if((!line.equals("Debut de l'ecoute..."))&&(!line.equals("Arret"))&&(!line.equals("Ecoute"))){                    
                         line = line.replaceAll(" ","");
                         String[] tempo;
