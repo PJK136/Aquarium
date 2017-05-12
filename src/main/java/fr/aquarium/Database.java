@@ -7,11 +7,13 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
+import java.util.List;
+import java.util.LinkedList;
 
 public class Database {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

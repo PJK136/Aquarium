@@ -11,7 +11,7 @@ public class TestDatabase {
     public static void main(String[] args) {
         Database database = null;
         try {
-            database = new Database("localhost", 3306, "Aquarium", "aquarium", "BocalBocal");
+            database = new Database("PC-TP-MYSQL", 3306, "G221_B_BD1", "G221_B", "G221_B");
         } catch (Exception ex) {
             logger.error("Impossible de se connecter à la BD", ex);
         }

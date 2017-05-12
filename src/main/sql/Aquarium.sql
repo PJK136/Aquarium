@@ -1,5 +1,3 @@
-use Aquarium;
-
 CREATE TABLE Sensor (
 	SensorId tinyint not null auto_increment primary key,
     SensorName varchar(20),
