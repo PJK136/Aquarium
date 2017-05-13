@@ -16,9 +16,7 @@ public final class Measure {
     }
     
     public String toString(){
-        String s;
-        s="ID du capteur: " + sensorId + "; Date mesure: " + date.toString() + "; Valeur binaire: " + rawValue + "; Valeur reelle: " + value;
-        return s;
+        return "ID du capteur: " + sensorId + "; Date mesure: " + date.toString() + "; Valeur binaire: " + rawValue + "; Valeur reelle: " + value;
     }
 
     public int getSensorId() {
