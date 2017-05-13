@@ -8,7 +8,7 @@
 typedef struct payload_t
 {
   uint8_t id; // Identification
-  uint8_t date;
+  uint32_t date;
   uint16_t temp;
   uint16_t lum;
   uint16_t flow;

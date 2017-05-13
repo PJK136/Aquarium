@@ -9,7 +9,8 @@ RF24 radio(9,10);
 unsigned int pos = 0;
 payload_t ppl[BUFFER_SIZE]; // Données non expédiées
 
-unsigned int wait = 3000;
+uint32_t wait = 1000;
+uint32_t lastUpdate = 0;
 
 //Pour le débimètre 
 volatile int NbTopsFan = 0; //measuring the rising edges of the signal
@@ -54,6 +55,20 @@ void setup() {
 
 void loop(void) {
   Serial.println(F("****************"));
+
+  if (millis() >= lastUpdate) {
+    for (unsigned int i = 0; i < pos; i++) {
+      ppl[i].date += millis() - lastUpdate;
+    }
+  } else { //millis() a rebouclé à 0
+    Serial.println(F("Fin d'un cycle de millis()"));
+    for (unsigned int i = 0; i < pos; i++) {
+      ppl[i].date += (((unsigned int)(-1)) - lastUpdate) + millis() ;
+    }
+  }
+
+  lastUpdate = millis();
+  
   if (pos < BUFFER_SIZE) {
     Serial.print(F("Acquisition d'une nouvelle mesure (pos : "));
     Serial.print(pos);
@@ -80,7 +95,7 @@ void loop(void) {
   Serial.println(F("Tentation d'envoi : "));
   unsigned long timer = micros();
   
-  int i = 0;
+  unsigned int i = 0;
   while (i < pos) {
     Serial.print(i);
     Serial.print(F("..."));
@@ -94,7 +109,7 @@ void loop(void) {
       Serial.print(F(" échec ! ")); 
       Serial.print((micros() - timer)*0.001);
       Serial.println("ms");
-      for (int j = i; j < pos; j++) {
+      for (unsigned int j = i; j < pos; j++) {
         ppl[j-i] = ppl[j];
       }
       break;
@@ -102,10 +117,6 @@ void loop(void) {
   }
 
   pos -= i;
-
-  for (int i = 0; i < pos; i++) {
-    ppl[i].date++;
-  }
 
   Serial.print(F("Attente de "));
   Serial.print(wait/1000);
