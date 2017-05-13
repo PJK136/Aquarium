@@ -46,7 +46,7 @@ public class Receiver implements Runnable {
 
         //} while (port == null);
         
-        port = "COM9";
+        port = "/dev/ttyACM1";
         
         logger.info("Connection au Port {}", port);
         
@@ -117,16 +117,17 @@ public class Receiver implements Runnable {
                 while ((line = vcpInput.readLine()) != null) {
                     logger.info("Data from Arduino : {}", line);
                     try {
-                        if((!line.equals("Debut de l'ecoute..."))&&(!line.equals("Arret"))&&(!line.equals("Ecoute"))){                    
+                        if(line.startsWith("Measures : ")){
+                            line = line.replaceAll("Measures : ", "");
                             line = line.replaceAll(" ","");
                             String[] tempo;
                             tempo = line.split(",");
                             Calendar date = Calendar.getInstance();
-                            date.add(Calendar.MINUTE,(-30)*Integer.parseInt(tempo[0]));
+                            date.add(Calendar.MILLISECOND, (-1)*Integer.parseInt(tempo[0]));
                             String[] tempo2;
                             List<Measure> measures = new LinkedList<Measure>();
                             for(int i=1; i<tempo.length; i++) {
-                                tempo2=tempo[i].split(";");
+                                tempo2=tempo[i].split(":");
                                 if (tempo2.length == 2)
                                     measures.add(new Measure(Integer.parseInt(tempo2[0]),date,Integer.parseInt(tempo2[1]),computeRealValue(Integer.parseInt(tempo2[0]),Integer.parseInt(tempo2[1]))));
                                 else

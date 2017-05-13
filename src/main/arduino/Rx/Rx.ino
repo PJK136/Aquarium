@@ -15,20 +15,20 @@ int ID_TEMP=5;
 
 //Affichage des données simplifié
 
-void printSerialMeasure(int id, int value) {
-  
-  Serial.print(id);
-  Serial.print(" ; ");
-  Serial.print(value);
-  Serial.print(",");
-  int i =0;
-  while(value!=0){
-    i++;
-    value=value/10;
-  }
-  for (int j = 0;j<(10-i);j++){
+void printPadding(unsigned int value, unsigned int space) {
+  //Padding
+  int size = max(1, ceil(log10(value+1)));
+  for (int j = 0;j<(space-size);j++){
     Serial.print(" ");
   }
+}
+void printSerialMeasure(unsigned int id, unsigned int value) {
+  
+  Serial.print(id);
+  Serial.print(" : ");
+  Serial.print(value);
+  Serial.print(",");
+  printPadding(value, 10);
 }
 
 void setup() {
@@ -51,50 +51,22 @@ void loop(void) {
     char r = Serial.read();
     if (r == '0') {
       radio.stopListening();
-      Serial.println("Arret");
+      Serial.println(F("Arret"));
     }
     else if (r == '1') {
       radio.startListening();
-      Serial.println("Ecoute");
+      Serial.println(F("Ecoute"));
     }
   }
 
   while (radio.available()) 
   {
-    /*
-    //Format des Données :
     radio.read(&pl, sizeof(payload_t));
-    //ID de l'envoyeur
-    //Serial.print(F("Id envoyeur : "));
-    Serial.print(pl.id);
-    Serial.print(",");
-    //Température mesurée
-    //Serial.print(F("  ; Temperature: "));
-    printSerialMeasure
-    Serial.print(pl.temp);
-    Serial.print(",");
-    //Niveau d'eau mesuré
-    //Serial.print(F("  ; Niveau: "));
-    Serial.print(pl.level);
-    Serial.print(",");
-    //Débit mesuré
-    //Serial.print(F("  ; Debit: "));
-    Serial.print(pl.flow);
-    Serial.print(",");
-    Serial.print(F("  ; pH: "));
-    Serial.print(pl.pH);
-    Serial.print(F("  ; Luminosite: "));
-    Serial.print(pl.lum);
-    Serial.print(F("  ; Numero envoi: "));
-    Serial.println(pl.date);
-    Serial.print(F("  ; Temps: "));
-    */
-    radio.read(&pl, sizeof(payload_t));
+    Serial.print(F("Measures : "));
     Serial.print(pl.date);
-    if(pl.date<10){
-      Serial.print(" ");
-    }
-    Serial.print(",    ");
+    Serial.print(",");
+    printPadding(pl.date, 10);
+    
     printSerialMeasure(ID_LUM,pl.lum);
     printSerialMeasure(ID_PH,pl.pH);
     printSerialMeasure(ID_FLOW,pl.flow);
