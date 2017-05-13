@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 import jssc.SerialPortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +61,21 @@ public class Receiver implements Runnable {
             //Lancement du thread de décodage
             Thread readingThread = new Thread(new ReadingTask());
             readingThread.start();
-            
+                       
             //Ouverture du canal de communication
             vcpChannel.open();
+            
+            Timer keepAliveTimer = new Timer();
+            keepAliveTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        vcpChannel.getWriter().write('A');
+                    } catch (IOException ex) {
+                        logger.error(ex.getClass().getName(), ex);
+                    }
+                }
+            }, 0, 1000);
             
             boolean exit = false;
             
@@ -83,7 +97,7 @@ public class Receiver implements Runnable {
             }
             
             //Fin de la communication
-            
+            keepAliveTimer.cancel();
             vcpChannel.close();
             
             readingThread.interrupt();

@@ -5,13 +5,17 @@
 RF24 radio(9,10); 
 payload_t pl;
 
-unsigned long temps=micros();
-
 int ID_LUM =1;
 int ID_PH =2;
 int ID_FLOW=3;
 int ID_LVL=4;
 int ID_TEMP=5;
+
+boolean isListening = false;
+unsigned long lastSerialAck = 0;
+#define TIMEOUT 10000
+
+boolean forceStop = false;
 
 //Affichage des données simplifié
 
@@ -33,7 +37,7 @@ void printSerialMeasure(unsigned int id, unsigned int value) {
 
 void setup() {
   Serial.begin(115200);    // Initialiser la communication série 
-  Serial.println(F("Debut de l'ecoute..."));
+  Serial.println(F("Debut du programme."));
   
   radio.begin();
   radio.setChannel(CHANNEL);
@@ -43,23 +47,39 @@ void setup() {
   radio.setRetries(15,15);            //On met un délai de 4ms et un nombre max de tentatives de 15
   
   radio.openReadingPipe(0, ADDRESS); // Ouvrir le Pipe en lecture
-  radio.startListening();
+  radio.stopListening();
 }
 
 void loop(void) {
   if (Serial.available()) {
-    char r = Serial.read();
+    char r = Serial.read();  
     if (r == '0') {
+      forceStop = true;
       radio.stopListening();
-      Serial.println(F("Arret"));
-    }
-    else if (r == '1') {
-      radio.startListening();
-      Serial.println(F("Ecoute"));
+      Serial.println(F("Forced stop listening"));
+    } else if (r == '1') {
+      forceStop = false;
+      Serial.println(F("Back to automatic state"));
+      if (isListening)
+        radio.startListening();
+    } else if (r == 'A') {
+      lastSerialAck = millis();
+      if (!isListening && !forceStop) {
+        Serial.println(F("Start listening : got Serial ACK"));
+        radio.startListening();
+        isListening = true;
+      }
     }
   }
 
-  while (radio.available()) 
+  if (isListening && millis() - lastSerialAck > TIMEOUT) {
+      Serial.println(F("Stop listening : serial communication timed out"));
+      radio.stopListening();
+      isListening = false;
+  }
+  
+
+  while (isListening && !forceStop && radio.available()) 
   {
     radio.read(&pl, sizeof(payload_t));
     Serial.print(F("Measures : "));
