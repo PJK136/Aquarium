@@ -5,14 +5,9 @@ import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -24,6 +19,8 @@ import com.google.gson.Gson;
 
 public class Extractor {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
+    public final static String JSON_FILENAME = "data.js";
     
     private final Database database;
 
@@ -41,7 +38,7 @@ public class Extractor {
         }
     }
     
-    public void dumpToJSON(String filename) {
+    public void dumpToJSON() {
         List<Sensor> sensors = database.querySensors();
         List<JSONSensor> jss = new ArrayList<JSONSensor>(sensors.size());
         for (Sensor sensor : sensors) {
@@ -56,41 +53,35 @@ public class Extractor {
             jss.add(js);
         }
         
-        try {
-            PrintWriter writer = new PrintWriter(filename);
+        try (PrintWriter writer = new PrintWriter(JSON_FILENAME)) {
 
             writer.println("var MEASURE_SERIES = ");
             writer.println(new Gson().toJson(jss));
             writer.println(";");
 
-            writer.close();
-
-            logger.info("Mesures enregistrées dans {}", filename);
+            logger.info("Mesures enregistrées en JSON dans {}", JSON_FILENAME);
         } catch (FileNotFoundException ex) {
-            logger.error("Impossible d'enregistrer les mesures", ex);
+            logger.error("Impossible d'enregistrer les mesures JSON", ex);
         }
     }
     
-    public void dumpToCSV(Path path) {
-        
+    public void dumpToCSV() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        String date = dateFormat.format(new Date());
+        String filename = "aquarium_measures_" + date + ".csv";
+            
         List<Measure> measures = database.queryMeasures(new GregorianCalendar(2017, Calendar.JANUARY, 1), Calendar.getInstance());
-        try {
-            SimpleDateFormat formatDatePourNomFichier = new SimpleDateFormat("yyyyMMdd-HHmmss");
-            String datePourNomFichier = formatDatePourNomFichier.format(new Date());
-            String nomFichier = "aquarium_measures_" + datePourNomFichier + ".csv";
+        
+        try (PrintWriter writer = new PrintWriter(filename)) {
+            writer.println("date;sensorId;value");
             
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(nomFichier)));
+            for (Measure measure : measures) {
+                writer.println(measure.getDate().getTimeInMillis()+";"+measure.getSensorId()+";"+measure.getValue());
+            }
             
-            DecimalFormat formatNombreDecimal = new DecimalFormat("0.00");
-            formatNombreDecimal.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.ROOT));
-            
-            for(Measure measure : measures){
-                writer.println(measure.getDate()+";"+measure.getSensorId()+";"+formatNombreDecimal.format(measure.getValue()));
-            }            
-            writer.close();
-        } catch (Exception ex) {
-            ex.printStackTrace(System.err);
-            System.exit(-1);
+            logger.info("Mesures enregistrées en CSV dans {}", filename);
+        } catch (FileNotFoundException ex) {
+            logger.error("Impossible d'enregistrer les mesures CSV", ex);
         }
     }
 }
