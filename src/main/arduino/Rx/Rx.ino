@@ -39,7 +39,7 @@ void printSerialMeasure(unsigned int id, unsigned int value) {
 }
 
 void setup() {
-  Serial.begin(115200);    // Initialiser la communication série 
+  Serial.begin(38400);    // Initialiser la communication série
   Serial.println(F("Debut du programme."));
   
   radio.begin();
