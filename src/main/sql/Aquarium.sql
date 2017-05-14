@@ -31,4 +31,7 @@ CREATE TABLE Event (
 	EventId smallint not null,
     DateEvent datetime not null,
     primary key (EventId, DateEvent),
-    foreign key (EventId) references EventType(EventId));
+    foreign key (EventId) references EventType(EventId));CREATE TABLE PHCalibration (
+    CalibrationDate datetime not null primary key,
+    PH4 smallint unsigned not null,
+    PH7 smallint unsigned not null);

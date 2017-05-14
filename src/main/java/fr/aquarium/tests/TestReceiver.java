@@ -11,7 +11,7 @@ public class TestReceiver {
     
     public static void main(String[] args) {
         try {
-            Receiver receiver = new Receiver();
+            Receiver receiver = new Receiver(null);
             receiver.run();
         } catch (IOException ex) {
             logger.error(ex.getClass().getName(), ex);

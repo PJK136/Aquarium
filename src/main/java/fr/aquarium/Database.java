@@ -141,4 +141,27 @@ public class Database {
         ps.executeBatch();
         connection.commit();
     }
+    
+    public PHCalibration queryLastPHCalibration() {
+        try (Connection connection = dataSource.getConnection()) {
+            ResultSet rs = connection.createStatement().executeQuery("select * from PHCalibration order by CalibrationDate desc limit 1");
+            if (rs.next()) {
+                return new PHCalibration(timestampToCalendar(rs.getTimestamp("CalibrationDate")), rs.getInt("PH4"), rs.getInt("PH7"));
+            }
+            return null;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
+    }
+    
+    public void insertPHCalibration(PHCalibration calibration) throws SQLException {
+        Connection connection = dataSource.getConnection();
+        String query = "insert into PHCalibration (CalibrationDate, PH4, PH7) values(?,?,?)";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setTimestamp(1, new Timestamp(calibration.getDate().getTimeInMillis()));
+        ps.setInt(2, calibration.getpH4());
+        ps.setInt(3, calibration.getpH7());
+        ps.execute();
+    }
 }

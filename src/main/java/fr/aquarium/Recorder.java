@@ -24,4 +24,14 @@ public class Recorder implements MeasureListener {
             logger.error("Insertion des mesures impossible", ex);
         }
     }
+
+    @Override
+    public void pHCalibrationReceived(PHCalibrationEvent event) {
+        try {
+            logger.info("Enregistrement d'une nouvelle calibration");
+            database.insertPHCalibration(event.getCalibration());
+        } catch (SQLException ex) {
+            logger.error("Insertion d'uen nouvelle calibration impossible", ex);
+        }
+    }
 }

@@ -36,4 +36,9 @@ public class Monitor implements MeasureListener {
             }
         }
     }
+
+    @Override
+    public void pHCalibrationReceived(PHCalibrationEvent event) {
+        //Nop
+    }
 }

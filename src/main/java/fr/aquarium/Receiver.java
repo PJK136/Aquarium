@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 public class Receiver implements Runnable {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private final double PH4_REF = 4.0;
+    private final double PH7_REF = 7.0;
+    
     private final List<MeasureListener> listeners = new ArrayList<MeasureListener>();
     
     public final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -25,7 +28,9 @@ public class Receiver implements Runnable {
     
     private ArduinoUsbChannel vcpChannel;
     
-    public Receiver() throws IOException {
+    private PHCalibration pHCalibration;
+    
+    public Receiver(PHCalibration pHCalibration) throws IOException {
         logger.info("Début de l'écoute Arduino");
         
         String port = null;
@@ -53,6 +58,8 @@ public class Receiver implements Runnable {
         logger.info("Connection au Port {}", port);
         
         vcpChannel = new ArduinoUsbChannel(port);
+        
+        this.pHCalibration = pHCalibration;
     }
     
     @Override
@@ -148,6 +155,18 @@ public class Receiver implements Runnable {
                                     logger.warn("Unknown data !");
                             }
                             sendMeasures(measures);
+                        } else if (line.startsWith("PH Calib :")) {
+                            line = line.replaceAll("PH Calib :", "");
+                            line = line.replaceAll(" ","");
+                            String[] data;
+                            data = line.split(",");
+                            if (data.length == 3) {
+                                Calendar date = Calendar.getInstance();
+                                date.add(Calendar.MILLISECOND, (-1)*Integer.parseInt(data[0]));
+                                pHCalibration = new PHCalibration(date, Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+                                sendPHCalibration(pHCalibration);
+                            } else
+                                logger.warn("Unknown data !");
                         }
                     } catch (NumberFormatException ex) {
                         logger.error(ex.getClass().getName(), ex);
@@ -157,7 +176,6 @@ public class Receiver implements Runnable {
                 logger.error(ex.getClass().getName(), ex);
             }
         }
-        
     }
     
     /**
@@ -171,7 +189,14 @@ public class Receiver implements Runnable {
             case 1: //Capteur luminosité
                 return rawValue;
             case 2: //Capteur pH
-                return rawValue;
+                if (pHCalibration == null) {
+                    logger.error("Capteur de pH non calibré ! Utilisation de la valeur 7 par défaut.");
+                    return 7.0;
+                }
+                
+                double m = (PH7_REF-PH4_REF)/(pHCalibration.getpH7()-pHCalibration.getpH4()); // (b-a)/(B-A)
+                double p = (PH4_REF*pHCalibration.getpH7()-pHCalibration.getpH4()*PH7_REF)/(pHCalibration.getpH7()-pHCalibration.getpH4()); //(aB-Ab)/(B-A)
+                return m*rawValue + p; // f(x) = mx + p
             case 3: //Capteur débit
                 return rawValue/10;
             case 4: //Capteur niveau
@@ -196,6 +221,13 @@ public class Receiver implements Runnable {
         MeasureEvent event = new MeasureEvent(measures);
         for (MeasureListener listener : listeners) {
             listener.measureReceived(event);
+        }
+    }
+    
+    public void sendPHCalibration(PHCalibration calibration) {
+        PHCalibrationEvent event = new PHCalibrationEvent(calibration);
+        for (MeasureListener listener : listeners) {
+            listener.pHCalibrationReceived(event);
         }
     }
 }
