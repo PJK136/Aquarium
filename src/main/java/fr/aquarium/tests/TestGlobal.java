@@ -1,6 +1,7 @@
 package fr.aquarium.tests;
 
 import fr.aquarium.Database;
+import fr.aquarium.Extractor;
 import fr.aquarium.Monitor;
 import fr.aquarium.Receiver;
 import fr.aquarium.Recorder;
@@ -21,11 +22,16 @@ public class TestGlobal {
             Receiver receiver = new Receiver(database.queryLastPHCalibration());
             Recorder recorder = new Recorder(database);
             Monitor monitor = new Monitor(database, 1);
+            Extractor extractor = new Extractor(database);
             
             receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
+            
+            extractor.schedule(1000);
 
             receiver.run();
+            
+            extractor.cancel();
         } catch (SQLException ex) {
             logger.error("Impossible de se connecter à la BD", ex);
         } catch (IOException ex) {

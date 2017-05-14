@@ -117,6 +117,35 @@ public class Database {
                 measures.add(new Measure(sensorId, timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
             }
             connection.close();
+    
+    public List<Measure> queryLastMeasures(int count) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Measure> measures = new LinkedList<Measure>();
+            PreparedStatement ps = connection.prepareStatement("SELECT SensorId, MeasureDate, rawValue, value "
+                    + "FROM Measure ORDER BY MeasureDate DESC LIMIT ?");
+            ps.setInt(1, count);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                measures.add(new Measure(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
+            }
+            return measures;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
+    }
+    
+        public List<Measure> queryLastMeasures(int sensorId, int count) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Measure> measures = new LinkedList<Measure>();
+            PreparedStatement ps = connection.prepareStatement("SELECT SensorId, MeasureDate, rawValue, value "
+                    + "FROM Measure WHERE SensorId=? ORDER BY MeasureDate DESC LIMIT ?");
+            ps.setInt(1, sensorId);
+            ps.setInt(2, count);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                measures.add(new Measure(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
+            }
             return measures;
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);

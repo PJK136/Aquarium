@@ -1,7 +1,6 @@
 package fr.aquarium;
 
 import java.lang.invoke.MethodHandles;
-import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +15,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.google.gson.Gson;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Extractor {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -23,9 +24,30 @@ public class Extractor {
     public final static String JSON_FILENAME = "data.js";
     
     private final Database database;
+    
+    private Timer timer;
 
     public Extractor(Database database) {
         this.database = database;
+    }
+
+    public void schedule(final int count) {
+        if (timer != null)
+            timer.cancel();
+        
+        timer = new Timer();
+        
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                dumpToJSON(count);
+            }
+        }, 0, 10000);
+    }
+    
+    public void cancel() {
+        if (timer != null)
+            timer.cancel();
     }
     
     private class JSONSensor {
@@ -38,12 +60,12 @@ public class Extractor {
         }
     }
     
-    public void dumpToJSON() {
+    public void dumpToJSON(int count) {
         List<Sensor> sensors = database.querySensors();
         List<JSONSensor> jss = new ArrayList<JSONSensor>(sensors.size());
         for (Sensor sensor : sensors) {
             JSONSensor js = new JSONSensor(sensor.getName());
-            List<Measure> measures = database.queryMeasures(sensor.getId(), new GregorianCalendar(2017, Calendar.JANUARY, 1), Calendar.getInstance());
+            List<Measure> measures = database.queryLastMeasures(sensor.getId(), count);
             for (Measure measure : measures) {
                 ArrayList al = new ArrayList(2);
                 al.add(measure.getDate().getTimeInMillis());
