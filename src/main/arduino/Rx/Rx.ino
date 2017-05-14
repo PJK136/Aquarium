@@ -5,11 +5,11 @@
 RF24 radio(9,10); 
 payload_t pl;
 
-int ID_LUM =1;
-int ID_PH =2;
-int ID_FLOW=3;
-int ID_LVL=4;
-int ID_TEMP=5;
+unsigned int ID_LUM =1;
+unsigned int ID_PH =2;
+unsigned int ID_FLOW=3;
+unsigned int ID_LVL=4;
+unsigned int ID_TEMP=5;
 
 boolean isListening = false;
 unsigned long lastSerialAck = 0;

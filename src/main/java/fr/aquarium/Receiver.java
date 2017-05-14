@@ -23,8 +23,8 @@ public class Receiver implements Runnable {
     
     private final List<MeasureListener> listeners = new ArrayList<MeasureListener>();
     
-    public final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    public final PrintStream output = System.out;
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private final PrintStream output = System.out;
     
     private ArduinoUsbChannel vcpChannel;
     
