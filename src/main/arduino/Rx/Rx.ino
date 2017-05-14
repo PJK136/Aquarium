@@ -21,8 +21,11 @@ boolean forceStop = false;
 
 void printPadding(unsigned int value, unsigned int space) {
   //Padding
-  int size = max(1, ceil(log10(value+1)));
-  for (int j = 0;j<(space-size);j++){
+  unsigned int size = max(1, ceil(log10(value+1)));
+  if (size > space)
+    return;
+    
+  for (unsigned int j = 0;j<(space-size);j++){
     Serial.print(" ");
   }
 }
