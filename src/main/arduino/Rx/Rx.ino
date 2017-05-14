@@ -85,16 +85,31 @@ void loop(void) {
   while (isListening && !forceStop && radio.available()) 
   {
     radio.read(&pl, sizeof(payload_t));
-    Serial.print(F("Measures : "));
-    Serial.print(pl.date);
-    Serial.print(",");
-    printPadding(pl.date, 10);
-    
-    printSerialMeasure(ID_LUM,pl.lum);
-    printSerialMeasure(ID_PH,pl.pH);
-    printSerialMeasure(ID_FLOW,pl.flow);
-    printSerialMeasure(ID_LVL,pl.level);
-    printSerialMeasure(ID_TEMP,pl.temp);
+    if (pl.id == PacketID::Measure)
+    {
+      Serial.print(F("Measures : "));
+      Serial.print(pl.date);
+      Serial.print(",");
+      printPadding(pl.date, 10);
+      
+      printSerialMeasure(ID_LUM,pl.measure.lum);
+      printSerialMeasure(ID_PH,pl.measure.pH);
+      printSerialMeasure(ID_FLOW,pl.measure.flow);
+      printSerialMeasure(ID_LVL,pl.measure.level);
+      printSerialMeasure(ID_TEMP,pl.measure.temp);
+    } else if (pl.id == PacketID::PHCalibration) {
+      Serial.print(F("PH Calib : "));
+      Serial.print(pl.date);
+      Serial.print(",");
+      printPadding(pl.date, 10);
+      
+      Serial.print(pl.ph_calibration.ph4);
+      Serial.print(",");
+      printPadding(pl.ph_calibration.ph4, 14);
+      
+      Serial.print(pl.ph_calibration.ph7);
+      Serial.print(",");
+    }
     Serial.println();
   }
 }
