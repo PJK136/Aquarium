@@ -55,6 +55,25 @@ void rpm()     //This is the function that the interupt calls
   NbTopsFan++;  //This function measures the rising and falling edge of the hall effect sensors signal
 }
 
+uint16_t analogReadAvg(uint8_t pin, unsigned int num, unsigned int d) {
+  analogRead(pin); //discard first reading
+  uint32_t sum = 0;
+  for (unsigned int i = 0; i < num; i++) {
+    sum += analogRead(pin);
+    delay(d);
+  }
+
+   return sum/num;
+}
+
+uint16_t analogReadAvg(uint8_t pin) {
+  return analogReadAvg(pin, 10, 1);
+}
+
+uint16_t analogReadPrecise(uint8_t pin) {
+  return analogReadAvg(pin, 100, 10);
+}
+
 void updateLastMeasure() {
     if (millis() >= lastMeasureTime) {
     for (unsigned int i = 0; i < pos; i++) {
@@ -86,11 +105,11 @@ void acquireMeasures() {
     ppl[pos].measure.temp=random(0,255);
 
     //Pour la lumière
-    ppl[pos].measure.lum=analogRead(sensorLumPin);
+    ppl[pos].measure.lum=analogReadAvg(sensorLumPin);
     
     ppl[pos].measure.flow=measureFlow();  //On récupère la valeur du débit en Litre/heure
     
-    ppl[pos].measure.pH=analogRead(sensorPHPin);
+    ppl[pos].measure.pH=analogReadAvg(sensorPHPin);
     ppl[pos].measure.level=random(0,1023);
     pos++;
     digitalWrite(greenLED, LOW);
@@ -162,7 +181,7 @@ void pHCalibrate() {
     updateLastMeasure();
     ppl[pos].id = PacketID::PHCalibration;
     ppl[pos].date=0;
-    ppl[pos].ph_calibration.ph4 = analogRead(sensorPHPin);
+    ppl[pos].ph_calibration.ph4 = analogReadPrecise(sensorPHPin);
 
     Serial.print(F(" : "));
     Serial.println(ppl[pos].ph_calibration.ph4);
@@ -172,7 +191,7 @@ void pHCalibrate() {
     digitalWrite(greenLED, HIGH);
     Serial.print(" - Solution PH 7");
   } else {
-    ppl[pos].ph_calibration.ph7 = analogRead(sensorPHPin);
+    ppl[pos].ph_calibration.ph7 = analogReadPrecise(sensorPHPin);
 
     Serial.print(F(" : "));
     Serial.println(ppl[pos].ph_calibration.ph7);
@@ -215,8 +234,6 @@ void setup() {
 }
 
 void loop(void) {
-  //Serial.println(F("****************"));
-
   int actualButtonState = !digitalRead(pHCalibrationPin); //Pull UP
 
   // If the switch changed, due to noise or pressing:
