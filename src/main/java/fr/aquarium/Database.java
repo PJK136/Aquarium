@@ -95,9 +95,8 @@ public class Database {
             ps.setTimestamp(2, new Timestamp(stop.getTimeInMillis()));
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                measures.add(new Measure(rs.getInt("sensorId"), timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
+                measures.add(new Measure(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
             }
-            connection.close();
             return measures;
         } catch (SQLException ex) {
             logger.error(ex.getClass().getName(), ex);
@@ -108,7 +107,7 @@ public class Database {
     public List<Measure> queryMeasures(int sensorId, Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<Measure>();
-            PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE sensorId=? and MeasureDate>? and MeasureDate<?;");
+            PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE SensorId=? and MeasureDate>? and MeasureDate<?;");
             ps.setInt(1, sensorId);
             ps.setTimestamp(2, new Timestamp(start.getTimeInMillis()));
             ps.setTimestamp(3, new Timestamp(stop.getTimeInMillis()));
@@ -116,7 +115,12 @@ public class Database {
             while(rs.next()){
                 measures.add(new Measure(sensorId, timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("rawValue"), rs.getDouble("value")));
             }
-            connection.close();
+            return measures;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
+    }
     
     public List<Measure> queryLastMeasures(int count) {
         try (Connection connection = dataSource.getConnection()) {
@@ -169,6 +173,7 @@ public class Database {
         
         ps.executeBatch();
         connection.commit();
+        connection.close();
     }
     
     public PHCalibration queryLastPHCalibration() {
@@ -192,5 +197,6 @@ public class Database {
         ps.setInt(2, calibration.getpH4());
         ps.setInt(3, calibration.getpH7());
         ps.execute();
+        connection.close();
     }
 }
