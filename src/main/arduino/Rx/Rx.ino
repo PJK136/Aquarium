@@ -13,7 +13,7 @@ unsigned int ID_TEMP=5;
 
 boolean isListening = false;
 unsigned long lastSerialAck = 0;
-#define TIMEOUT 10000
+#define TIMEOUT 2500
 
 boolean forceStop = false;
 

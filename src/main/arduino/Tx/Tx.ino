@@ -2,7 +2,7 @@
 #include  <RF24.h>
 #include  "packet.h"
 
-#define BUFFER_SIZE 20
+#define BUFFER_SIZE 80
 
 RF24 radio(9,10);
 
