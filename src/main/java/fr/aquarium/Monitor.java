@@ -38,7 +38,7 @@ public class Monitor implements MeasureListener {
                 logger.error("La donnée {} est trop haute : {} {}",sensor.getName(), value, sensor.getUnit() == null ? ' ' : sensor.getUnit());
             }
             if (value<threshold.getMin()){
-                logger.error("La donnée {} est trop basse : {} {}",sensor.getName(), value, sensor.getUnit());
+                logger.error("La donnée {} est trop basse : {} {}",sensor.getName(), value, sensor.getUnit() == null ? ' ' : sensor.getUnit());
             }
         }
         
