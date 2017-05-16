@@ -46,8 +46,7 @@ int measureFlow() //Pour mesure le débit avec le débitmètre
   attachInterrupt(digitalPinToInterrupt(sensorFlowPin), rpm, RISING); //interrupt is attached
   delay (1000);   //Wait 1 second
   detachInterrupt(digitalPinToInterrupt(sensorFlowPin)); //interrupt is detached
-  int Calc = (NbTopsFan * 60 / 5.5); //(Pulse frequency x 60) / 5.5Q, = flow rate in L/hour
-  return Calc;
+  return NbTopsFan;
 }
 
 void rpm()     //This is the function that the interupt calls

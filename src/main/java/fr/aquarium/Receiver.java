@@ -198,7 +198,7 @@ public class Receiver implements Runnable {
                 double p = (PH4_REF*pHCalibration.getpH7()-pHCalibration.getpH4()*PH7_REF)/(pHCalibration.getpH7()-pHCalibration.getpH4()); //(aB-Ab)/(B-A)
                 return m*rawValue + p; // f(x) = mx + p
             case 3: //Capteur débit
-                return rawValue/10;
+                return rawValue*60/5.5;
             case 4: //Capteur niveau
                 return rawValue;
             case 5: //Capteur température
