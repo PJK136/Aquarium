@@ -18,7 +18,7 @@ import java.util.LinkedList;
 public class Database {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     
-    private MysqlDataSource dataSource;
+    private final MysqlDataSource dataSource;
     
     public Database(String serverName, int port, String database, String user, String password) throws SQLException {
         this.dataSource = new MysqlDataSource();
@@ -59,7 +59,7 @@ public class Database {
      */
     public List<Sensor> querySensors() {
         try (Connection connection = dataSource.getConnection()) {
-            List<Sensor> sensors = new LinkedList<Sensor>();
+            List<Sensor> sensors = new LinkedList<>();
             String query = "select * from Sensor";
             ResultSet rs = connection.createStatement().executeQuery(query);
             while (rs.next()) {
@@ -110,7 +110,7 @@ public class Database {
      */
     public List<Measure> queryMeasures(Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
-            List<Measure> measures = new LinkedList<Measure>();
+            List<Measure> measures = new LinkedList<>();
             PreparedStatement ps = connection.prepareStatement("SELECT sensorId, MeasureDate, rawValue, value " + "FROM Measure " + "WHERE MeasureDate>=? and MeasureDate<?;");
             ps.setTimestamp(1, new Timestamp(start.getTimeInMillis()));
             ps.setTimestamp(2, new Timestamp(stop.getTimeInMillis()));
@@ -134,7 +134,7 @@ public class Database {
      */
     public List<Measure> queryMeasures(int sensorId, Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
-            List<Measure> measures = new LinkedList<Measure>();
+            List<Measure> measures = new LinkedList<>();
             PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE SensorId=? and MeasureDate>=? and MeasureDate<?;");
             ps.setInt(1, sensorId);
             ps.setTimestamp(2, new Timestamp(start.getTimeInMillis()));
@@ -157,7 +157,7 @@ public class Database {
      */
     public List<Measure> queryLastMeasures(int count) {
         try (Connection connection = dataSource.getConnection()) {
-            List<Measure> measures = new LinkedList<Measure>();
+            List<Measure> measures = new LinkedList<>();
             PreparedStatement ps = connection.prepareStatement("SELECT SensorId, MeasureDate, rawValue, value "
                     + "FROM Measure ORDER BY MeasureDate DESC LIMIT ?");
             ps.setInt(1, count);
@@ -202,22 +202,22 @@ public class Database {
      * @throws SQLException Erreur SQL
      */
     public void insertMeasures(List<Measure> measures) throws SQLException {
-        Connection connection = dataSource.getConnection();
-        connection.setAutoCommit(false);
-        //Ici, on fait 1 requête pour ajouter toutes les mesures d'un coup
-        String query="insert into Measure (SensorId, MeasureDate, RawValue, Value) values(?,?,?,?)";
-        PreparedStatement ps = connection.prepareStatement(query);
-        for (Measure measure : measures) {
-            ps.setInt(1, measure.getSensorId());
-            ps.setTimestamp(2, new Timestamp(measure.getDate().getTimeInMillis()));
-            ps.setInt(3, measure.getRawValue());
-            ps.setDouble(4, measure.getValue());
-            ps.addBatch();
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            //Ici, on fait 1 requête pour ajouter toutes les mesures d'un coup
+            String query="insert into Measure (SensorId, MeasureDate, RawValue, Value) values(?,?,?,?)";
+            PreparedStatement ps = connection.prepareStatement(query);
+            for (Measure measure : measures) {
+                ps.setInt(1, measure.getSensorId());
+                ps.setTimestamp(2, new Timestamp(measure.getDate().getTimeInMillis()));
+                ps.setInt(3, measure.getRawValue());
+                ps.setDouble(4, measure.getValue());
+                ps.addBatch();
+            }
+            
+            ps.executeBatch();
+            connection.commit();
         }
-
-        ps.executeBatch();
-        connection.commit();
-        connection.close();
     }
     
     /**
@@ -246,14 +246,14 @@ public class Database {
      * @throws SQLException Erreur SQL
      */
     public void insertPHCalibration(PHCalibration calibration) throws SQLException {
-        Connection connection = dataSource.getConnection();
-        String query = "insert into PHCalibration (SensorId, CalibrationDate, PH4, PH7) values(?,?,?,?)";
-        PreparedStatement ps = connection.prepareStatement(query);
-        ps.setInt(1, calibration.getSensorId());
-        ps.setTimestamp(2, new Timestamp(calibration.getDate().getTimeInMillis()));
-        ps.setInt(3, calibration.getpH4());
-        ps.setInt(4, calibration.getpH7());
-        ps.execute();
-        connection.close();
+        try (Connection connection = dataSource.getConnection()) {
+            String query = "insert into PHCalibration (SensorId, CalibrationDate, PH4, PH7) values(?,?,?,?)";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, calibration.getSensorId());
+            ps.setTimestamp(2, new Timestamp(calibration.getDate().getTimeInMillis()));
+            ps.setInt(3, calibration.getpH4());
+            ps.setInt(4, calibration.getpH7());
+            ps.execute();
+        }
     }
 }
