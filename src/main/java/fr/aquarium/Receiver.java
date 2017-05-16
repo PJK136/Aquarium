@@ -30,40 +30,39 @@ public class Receiver implements Runnable {
     
     private ArduinoUsbChannel vcpChannel;
     
-    public Receiver(Database database) throws IOException {
-        logger.info("Début de l'écoute Arduino");
-        
-        String port = null;
-        
-        //do {
-        
+    public Receiver(Database database)  throws IOException {
+        this(database, null);
+    }
+    
+    public Receiver(Database database, String port) throws IOException {
+        while (port == null) {
             logger.info("Recherche d'un port disponible...");
             port = ArduinoUsbChannel.getOneComPort();
-            
+
             if (port == null) {
-                //logger.warn("Aucun port disponible !");
-                throw new IOException("Aucun port disponible !");
-                /*logger.info("Nouvel essai dans 5s");
+                logger.warn("Aucun port disponible !");
+                logger.info("Nouvel essai dans 5s");
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException ex) {
-                    // Ignorer l'exception
-                }*/
+                    /*ex*/      // Ignorer l'exception
+                }
             }
-
-        //} while (port == null);
+        }
         
-        port = "/dev/ttyACM1";
-        
-        logger.info("Connection au Port {}", port);
+        logger.info("Connection au port {}", port);
         
         vcpChannel = new ArduinoUsbChannel(port);
+        
+        logger.info("Connection réussie au port {}", port);
         
         this.database = database;
     }
     
     @Override
     public void run() {
+        logger.info("Début de l'écoute Arduino");
+        
         try {
             //Lancement du thread de décodage
             Thread readingThread = new Thread(new ReadingTask());

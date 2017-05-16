@@ -19,7 +19,7 @@ public class TestGlobal {
             //database = new Database("PC-TP-MYSQL", 3306, "G221_B_BD1", "G221_B", "G221_B");
             Database database = new Database("localhost", 3306, "Aquarium", "aquarium", "BocalBocal");
                 
-            Receiver receiver = new Receiver(database);
+            Receiver receiver = new Receiver(database, "/dev/ttyACM1");
             Recorder recorder = new Recorder(database);
             Monitor monitor = new Monitor(database, 1);
             Extractor extractor = new Extractor(database);
