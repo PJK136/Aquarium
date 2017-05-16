@@ -149,7 +149,7 @@ public class Database {
             return null;
         }
     }
-    
+
      /**
      * Récupère les n-dernières mesures
      * @param count Nombre de mesures à récupérer
@@ -221,14 +221,17 @@ public class Database {
     }
     
     /**
-     * Récupère la dernière calibration du capteur de pH
+     * Récupère la dernière calibration pour un capteur de pH
+     * @param sensorId Identifiant du capteur
      * @return Données de calibration du capteur de pH
      */
-    public PHCalibration queryLastPHCalibration() {
+    public PHCalibration queryLastPHCalibration(int sensorId) {
         try (Connection connection = dataSource.getConnection()) {
-            ResultSet rs = connection.createStatement().executeQuery("select * from PHCalibration order by CalibrationDate desc limit 1");
+            PreparedStatement ps = connection.prepareStatement("select * from PHCalibration where SensorId=? order by CalibrationDate desc limit 1");
+            ps.setInt(1, sensorId);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new PHCalibration(timestampToCalendar(rs.getTimestamp("CalibrationDate")), rs.getInt("PH4"), rs.getInt("PH7"));
+                return new PHCalibration(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("CalibrationDate")), rs.getInt("PH4"), rs.getInt("PH7"));
             }
             return null;
         } catch (SQLException ex) {
@@ -244,11 +247,12 @@ public class Database {
      */
     public void insertPHCalibration(PHCalibration calibration) throws SQLException {
         Connection connection = dataSource.getConnection();
-        String query = "insert into PHCalibration (CalibrationDate, PH4, PH7) values(?,?,?)";
+        String query = "insert into PHCalibration (SensorId, CalibrationDate, PH4, PH7) values(?,?,?,?)";
         PreparedStatement ps = connection.prepareStatement(query);
-        ps.setTimestamp(1, new Timestamp(calibration.getDate().getTimeInMillis()));
-        ps.setInt(2, calibration.getpH4());
-        ps.setInt(3, calibration.getpH7());
+        ps.setInt(1, calibration.getSensorId());
+        ps.setTimestamp(2, new Timestamp(calibration.getDate().getTimeInMillis()));
+        ps.setInt(3, calibration.getpH4());
+        ps.setInt(4, calibration.getpH7());
         ps.execute();
         connection.close();
     }

@@ -35,6 +35,9 @@ CREATE TABLE Event (
     foreign key (EventId) references EventType(EventId));
 
 CREATE TABLE PHCalibration (
-    CalibrationDate datetime not null primary key,
+    SensorId tinyint unsigned not null,
+    CalibrationDate datetime not null,
     PH4 smallint unsigned not null,
-    PH7 smallint unsigned not null);
+    PH7 smallint unsigned not null,
+    primary key (SensorId, CalibrationDate),
+    foreign key (SensorId) references Sensor(SensorId));

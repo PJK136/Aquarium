@@ -18,8 +18,10 @@ import org.slf4j.LoggerFactory;
 public class Receiver implements Runnable {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final double PH4_REF = 4.0;
+    private final double PH4_REF = 4.01;
     private final double PH7_REF = 7.0;
+        
+    private final Database database;
     
     private final List<MeasureListener> listeners = new ArrayList<MeasureListener>();
     
@@ -28,9 +30,7 @@ public class Receiver implements Runnable {
     
     private ArduinoUsbChannel vcpChannel;
     
-    private PHCalibration pHCalibration;
-    
-    public Receiver(PHCalibration pHCalibration) throws IOException {
+    public Receiver(Database database) throws IOException {
         logger.info("Début de l'écoute Arduino");
         
         String port = null;
@@ -59,7 +59,7 @@ public class Receiver implements Runnable {
         
         vcpChannel = new ArduinoUsbChannel(port);
         
-        this.pHCalibration = pHCalibration;
+        this.database = database;
     }
     
     @Override
@@ -160,11 +160,10 @@ public class Receiver implements Runnable {
                             line = line.replaceAll(" ","");
                             String[] data;
                             data = line.split(",");
-                            if (data.length == 3) {
+                            if (data.length == 4) {
                                 Calendar date = Calendar.getInstance();
                                 date.add(Calendar.MILLISECOND, (-1)*Integer.parseInt(data[0]));
-                                pHCalibration = new PHCalibration(date, Integer.parseInt(data[1]), Integer.parseInt(data[2]));
-                                sendPHCalibration(pHCalibration);
+                                sendPHCalibration(new PHCalibration(Integer.parseInt(data[1]), date, Integer.parseInt(data[2]), Integer.parseInt(data[3])));
                             } else
                                 logger.warn("Unknown data !");
                         }
@@ -189,6 +188,7 @@ public class Receiver implements Runnable {
             case 1: //Capteur luminosité
                 return rawValue;
             case 2: //Capteur pH
+                PHCalibration pHCalibration = database.queryLastPHCalibration(sensorId);
                 if (pHCalibration == null) {
                     logger.error("Capteur de pH non calibré ! Utilisation de la valeur 7 par défaut.");
                     return 7.0;

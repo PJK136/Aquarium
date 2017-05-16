@@ -99,16 +99,20 @@ void loop(void) {
       printSerialMeasure(ID_TEMP,pl.measure.temp);
     } else if (pl.id == PacketID::PHCalibration) {
       Serial.print(F("PH Calib : "));
+      
       Serial.print(pl.date);
       Serial.print(",");
       printPadding(pl.date, 10);
+
+      Serial.print(ID_PH);
+      Serial.print(",");
+      printPadding(pl.ph_calibration.ph4, 14);
       
       Serial.print(pl.ph_calibration.ph4);
       Serial.print(",");
       printPadding(pl.ph_calibration.ph4, 14);
       
       Serial.print(pl.ph_calibration.ph7);
-      Serial.print(",");
     }
     Serial.println();
   }
