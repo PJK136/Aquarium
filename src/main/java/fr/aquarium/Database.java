@@ -197,6 +197,33 @@ public class Database {
     }
     
     /**
+     * Récupère les n-dernières mesures pour un capteur donné par intervalle donné
+     * @param sensorId Identifiant du capteur
+     * @param count Nombre de mesures à récupérer
+     * @param interval Intervalle en secondes
+     * @return Liste de mesures pour le capteur spécifié
+     */
+    public List<Measure> queryLastMeasuresByInterval(int sensorId, int count, int interval) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Measure> measures = new LinkedList<Measure>();
+            PreparedStatement ps = connection.prepareStatement("SELECT SensorId, MeasureDate, avg(rawValue), avg(value) "
+                    + "FROM Measure WHERE SensorId=? Group by SensorId, UNIX_TIMESTAMP(MeasureDate) DIV ? "
+                    + "ORDER BY MeasureDate DESC LIMIT ?");
+            ps.setInt(1, sensorId);
+            ps.setInt(2, interval);
+            ps.setInt(3, count);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                measures.add(new Measure(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("avg(rawValue)"), rs.getDouble("avg(value)")));
+            }
+            return measures;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
+    }
+    
+    /**
      * Insère les mesures dans la base de donnée
      * @param measures Liste des mesures à insérer
      * @throws SQLException Erreur SQL

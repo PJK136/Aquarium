@@ -60,12 +60,34 @@ public class Extractor {
         }
     }
     
-    public void dumpToJSON(int count) {
+    public void dumpToJSON(final int count) {
+        dumpToJSON(JSON_FILENAME, new MeasureQuery() {
+            @Override
+            public List<Measure> query(int sensorId) {
+                return database.queryLastMeasures(sensorId, count);
+            }
+        });
+    }
+    
+    public void dumpToJSON(final int count, final int interval) {
+        dumpToJSON(JSON_FILENAME, new MeasureQuery() {
+            @Override
+            public List<Measure> query(int sensorId) {
+                return database.queryLastMeasuresByInterval(sensorId, count, interval);
+            }
+        });
+    }
+    
+    private interface MeasureQuery {
+        List<Measure> query(int sensorId);
+    }
+    
+    private void dumpToJSON(String filename, MeasureQuery query) {
         List<Sensor> sensors = database.querySensors();
         List<JSONSensor> jss = new ArrayList<JSONSensor>(sensors.size());
         for (Sensor sensor : sensors) {
             JSONSensor js = new JSONSensor(sensor.getName());
-            List<Measure> measures = database.queryLastMeasures(sensor.getId(), count);
+            List<Measure> measures = query.query(sensor.getId());
             for (Measure measure : measures) {
                 ArrayList al = new ArrayList(2);
                 al.add(measure.getDate().getTimeInMillis());
@@ -75,13 +97,13 @@ public class Extractor {
             jss.add(js);
         }
         
-        try (PrintWriter writer = new PrintWriter(JSON_FILENAME)) {
+        try (PrintWriter writer = new PrintWriter(filename)) {
 
             writer.println("var MEASURE_SERIES = ");
             writer.println(new Gson().toJson(jss));
             writer.println(";");
 
-            logger.info("Mesures enregistrées en JSON dans {}", JSON_FILENAME);
+            logger.info("Mesures enregistrées en JSON dans {}", filename);
         } catch (FileNotFoundException ex) {
             logger.error("Impossible d'enregistrer les mesures JSON", ex);
         }

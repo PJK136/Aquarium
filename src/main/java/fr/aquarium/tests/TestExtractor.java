@@ -16,8 +16,8 @@ public class TestExtractor {
             Database database = new Database("localhost", 3306, "Aquarium", "aquarium", "BocalBocal");
                 
             Extractor extractor = new Extractor(database);
-            extractor.dumpToJSON(1000);
-            extractor.dumpToCSV();
+            extractor.dumpToJSON(1000, 300);
+            //extractor.dumpToCSV();
         } catch (SQLException ex) {
             logger.error("Impossible de se connecter à la BD", ex);
         }
