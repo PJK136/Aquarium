@@ -104,10 +104,17 @@ public class Database {
         }
     }
     
+     /**
+     * Récupère les mesures pour un capteur donné entre deux moments
+     * @param sensorId Capteur désiré
+     * @param start À partir de ce moment (inclus)
+     * @param stop Jusqu'à ce moment (exclu)
+     * @return Liste de mesures pour le capteur spécifié
+     */
     public List<Measure> queryMeasures(int sensorId, Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<Measure>();
-            PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE SensorId=? and MeasureDate>? and MeasureDate<?;");
+            PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE SensorId=? and MeasureDate>=? and MeasureDate<?;");
             ps.setInt(1, sensorId);
             ps.setTimestamp(2, new Timestamp(start.getTimeInMillis()));
             ps.setTimestamp(3, new Timestamp(stop.getTimeInMillis()));
@@ -122,6 +129,11 @@ public class Database {
         }
     }
     
+     /**
+     * Récupère les n-dernières mesures
+     * @param count Nombre de mesures à récupérer
+     * @return Liste de mesures
+     */
     public List<Measure> queryLastMeasures(int count) {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<Measure>();
@@ -139,7 +151,13 @@ public class Database {
         }
     }
     
-        public List<Measure> queryLastMeasures(int sensorId, int count) {
+    /**
+     * Récupère les n-dernières mesures pour un capteur donné
+     * @param sensorId Capteur désiré
+     * @param count Nombre de mesures à récupérer
+     * @return Liste de mesures pour le capteur spécifié
+     */
+    public List<Measure> queryLastMeasures(int sensorId, int count) {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<Measure>();
             PreparedStatement ps = connection.prepareStatement("SELECT SensorId, MeasureDate, rawValue, value "
@@ -157,6 +175,11 @@ public class Database {
         }
     }
     
+    /**
+     * Insère les mesures dans la base de donnée
+     * @param measures Liste des mesures à insérer
+     * @throws SQLException Erreur SQL
+     */
     public void insertMeasures(List<Measure> measures) throws SQLException {
         Connection connection = dataSource.getConnection();
         connection.setAutoCommit(false);
@@ -170,12 +193,16 @@ public class Database {
             ps.setDouble(4, measure.getValue());
             ps.addBatch();
         }
-        
+
         ps.executeBatch();
         connection.commit();
         connection.close();
     }
     
+    /**
+     * Récupère la dernière calibration du capteur de pH
+     * @return Données de calibration du capteur de pH
+     */
     public PHCalibration queryLastPHCalibration() {
         try (Connection connection = dataSource.getConnection()) {
             ResultSet rs = connection.createStatement().executeQuery("select * from PHCalibration order by CalibrationDate desc limit 1");
@@ -189,6 +216,11 @@ public class Database {
         }
     }
     
+    /**
+     * Insère une calibration du capteur de pH dans la base de donnée
+     * @param calibration Données de calibration
+     * @throws SQLException Erreur SQL
+     */
     public void insertPHCalibration(PHCalibration calibration) throws SQLException {
         Connection connection = dataSource.getConnection();
         String query = "insert into PHCalibration (CalibrationDate, PH4, PH7) values(?,?,?)";
