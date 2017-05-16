@@ -105,7 +105,14 @@ public class Receiver implements Runnable {
             //Fin de la communication
             keepAliveTimer.cancel();
             
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                logger.error(ex.getClass().getName(), ex);
+            }
+            
             vcpChannel.getWriter().write('B'); //Disconnect
+            vcpChannel.getWriter().flush();
             
             vcpChannel.close();
             
@@ -198,7 +205,13 @@ public class Receiver implements Runnable {
                 
                 double m = (PH7_REF-PH4_REF)/(pHCalibration.getpH7()-pHCalibration.getpH4()); // (b-a)/(B-A)
                 double p = (PH4_REF*pHCalibration.getpH7()-pHCalibration.getpH4()*PH7_REF)/(pHCalibration.getpH7()-pHCalibration.getpH4()); //(aB-Ab)/(B-A)
-                return m*rawValue + p; // f(x) = mx + p
+                double value = m*rawValue + p; // f(x) = mx + p
+                if (value == Double.NaN || value < 0 || value > 14) {
+                    logger.error("Capteur de pH mal calibré : {} ! Utilisation de la valeur 7 par défaut.", value);
+                    return 7.0;
+                }
+                
+                return value;
             case 3: //Capteur débit
                 return rawValue*60/5.5;
             case 4: //Capteur niveau
