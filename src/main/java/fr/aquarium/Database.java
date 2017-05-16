@@ -32,6 +32,11 @@ public class Database {
         logger.info("Connexion réussie à la BDD {}", database);
     }
 
+    /**
+     * Récupère le capteur spécifié
+     * @param sensorId Identifiant du capteur
+     * @return Données à propos du capteur
+     */
     public Sensor querySensor(int sensorId) {
         try (Connection connection = dataSource.getConnection()) {
             String query = "select * from Sensor where SensorId=?";
@@ -47,7 +52,11 @@ public class Database {
             return null;
         }
     }
-    
+
+    /**
+     * Récupère tous les capteurs de la base de données
+     * @return Liste de tous les capteurs
+     */
     public List<Sensor> querySensors() {
         try (Connection connection = dataSource.getConnection()) {
             List<Sensor> sensors = new LinkedList<Sensor>();
@@ -62,7 +71,13 @@ public class Database {
             return null;
         }
     }
-    
+
+    /**
+     * Récupère les limites pour un poisson et un capteur donné
+     * @param fishId Identifiant du poisson
+     * @param sensorId Identifiant du capteur
+     * @return Limites associées
+     */
     public Threshold queryThreshold(int fishId, int sensorId) {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("select Minimum, Maximum from Threshold where FishId=? and SensorId=?;");
@@ -87,10 +102,16 @@ public class Database {
         return calendar;
     }
     
+    /**
+     * Récupère les mesures entre deux moments
+     * @param start À partir de ce moment (inclus)
+     * @param stop Jusqu'à ce moment (exclu)
+     * @return Liste de mesures
+     */
     public List<Measure> queryMeasures(Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<Measure>();
-            PreparedStatement ps = connection.prepareStatement("SELECT sensorId, MeasureDate, rawValue, value " + "FROM Measure " + "WHERE MeasureDate>? and MeasureDate<?;");
+            PreparedStatement ps = connection.prepareStatement("SELECT sensorId, MeasureDate, rawValue, value " + "FROM Measure " + "WHERE MeasureDate>=? and MeasureDate<?;");
             ps.setTimestamp(1, new Timestamp(start.getTimeInMillis()));
             ps.setTimestamp(2, new Timestamp(stop.getTimeInMillis()));
             ResultSet rs = ps.executeQuery();
@@ -103,10 +124,10 @@ public class Database {
             return null;
         }
     }
-    
-     /**
+
+    /**
      * Récupère les mesures pour un capteur donné entre deux moments
-     * @param sensorId Capteur désiré
+     * @param sensorId Identifiant du capteur
      * @param start À partir de ce moment (inclus)
      * @param stop Jusqu'à ce moment (exclu)
      * @return Liste de mesures pour le capteur spécifié
@@ -150,10 +171,10 @@ public class Database {
             return null;
         }
     }
-    
+
     /**
      * Récupère les n-dernières mesures pour un capteur donné
-     * @param sensorId Capteur désiré
+     * @param sensorId Identifiant du capteur
      * @param count Nombre de mesures à récupérer
      * @return Liste de mesures pour le capteur spécifié
      */
