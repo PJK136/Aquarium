@@ -72,6 +72,10 @@ void loop(void) {
         radio.startListening();
         isListening = true;
       }
+    } else if (r == 'B') {
+      Serial.println(F("Stop listening : got Serial Disconnect"));
+      radio.stopListening();
+      isListening = false;
     }
   }
 

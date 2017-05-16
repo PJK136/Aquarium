@@ -76,7 +76,7 @@ public class Receiver implements Runnable {
                 @Override
                 public void run() {
                     try {
-                        vcpChannel.getWriter().write('A');
+                        vcpChannel.getWriter().write('A'); //ACK
                     } catch (IOException ex) {
                         logger.error(ex.getClass().getName(), ex);
                     }
@@ -104,6 +104,9 @@ public class Receiver implements Runnable {
             
             //Fin de la communication
             keepAliveTimer.cancel();
+            
+            vcpChannel.getWriter().write('B'); //Disconnect
+            
             vcpChannel.close();
             
             readingThread.interrupt();
