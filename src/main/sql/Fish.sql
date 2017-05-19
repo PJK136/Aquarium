@@ -12,8 +12,6 @@ values (1,"Ecrevisse CPO"),
 (11,"Discus");
 
 insert into Threshold (FishId, SensorId, Minimum, Maximum) values 
-(1, 2, 5.8, 6.5),
-(1, 5, 12, 25),
 (2,2,6.4,7.6),
 (3,2,6.5,7.5),
 (4,2,6,7),

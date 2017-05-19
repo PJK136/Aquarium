@@ -11,7 +11,8 @@ enum class PacketID : uint8_t {
 
 typedef struct measure_t {
   uint16_t temp;
-  uint16_t lum;
+  uint16_t lumP;
+  uint16_t lumS;
   uint16_t flow;
   uint16_t pH;
   uint16_t level;

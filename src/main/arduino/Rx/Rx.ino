@@ -5,15 +5,16 @@
 RF24 radio(9,10); 
 payload_t pl;
 
-unsigned int ID_LUM =1;
-unsigned int ID_PH =2;
+unsigned int ID_LUM_P=1;
+unsigned int ID_PH=2;
 unsigned int ID_FLOW=3;
 unsigned int ID_LVL=4;
 unsigned int ID_TEMP=5;
+unsigned int ID_LUM_S=6;
 
 boolean isListening = false;
 unsigned long lastSerialAck = 0;
-#define TIMEOUT 2500
+#define TIMEOUT 2500000
 
 boolean forceStop = false;
 
@@ -96,11 +97,12 @@ void loop(void) {
       Serial.print(",");
       printPadding(pl.date, 10);
       
-      printSerialMeasure(ID_LUM,pl.measure.lum);
+      printSerialMeasure(ID_LUM_P,pl.measure.lumP);
       printSerialMeasure(ID_PH,pl.measure.pH);
       printSerialMeasure(ID_FLOW,pl.measure.flow);
       printSerialMeasure(ID_LVL,pl.measure.level);
       printSerialMeasure(ID_TEMP,pl.measure.temp);
+      printSerialMeasure(ID_LUM_S,pl.measure.lumS);
     } else if (pl.id == PacketID::PHCalibration) {
       Serial.print(F("PH Calib : "));
       

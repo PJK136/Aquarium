@@ -2,7 +2,7 @@
 #include  <RF24.h>
 #include  "packet.h"
 
-#define BUFFER_SIZE 80
+#define BUFFER_SIZE 70
 
 RF24 radio(9,10);
 
@@ -12,10 +12,10 @@ payload_t ppl[BUFFER_SIZE]; // Données non expédiées
 uint32_t wait = 2000;
 uint32_t lastMeasureTime = 0;
 
-//Pour le capteur de luminosité n°1
-uint8_t sensorLumPin = A1; // select the input pin for LDR
+uint8_t sensorLumP = A1; //Pour le capteur de luminosité P
 uint8_t sensorPHPin = A2;
 uint8_t sensorFlowPin = 3;  //The pin location of the sensor
+uint8_t sensorLumS = A0; //Pour le capteur de luminosité S
 
 uint8_t pHCalibrationPin = 2;
 uint8_t pHCalibrationLED = 4;
@@ -104,7 +104,8 @@ void acquireMeasures() {
     ppl[pos].measure.temp=random(0,255);
 
     //Pour la lumière
-    ppl[pos].measure.lum=analogReadAvg(sensorLumPin);
+    ppl[pos].measure.lumP=analogReadAvg(sensorLumP);
+    ppl[pos].measure.lumS=analogReadAvg(sensorLumS);
     
     ppl[pos].measure.flow=measureFlow();  //On récupère la valeur du débit en Litre/heure
     
