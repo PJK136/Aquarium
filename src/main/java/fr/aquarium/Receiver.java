@@ -217,7 +217,7 @@ public class Receiver implements Runnable {
             case 4: //Capteur niveau
                 return rawValue;
             case 5: //Capteur température
-                return rawValue;
+                return rawValue/16.;
             case 6: //Capteur luminosité S
                 return rawValue;
             default:

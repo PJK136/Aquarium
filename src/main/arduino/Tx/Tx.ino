@@ -1,8 +1,9 @@
 #include  <SPI.h>
 #include  <RF24.h>
+#include  <OneWire.h>
 #include  "packet.h"
 
-#define BUFFER_SIZE 70
+#define BUFFER_SIZE 50
 
 RF24 radio(9,10);
 
@@ -15,6 +16,8 @@ uint32_t lastMeasureTime = 0;
 uint8_t sensorLumP = A1; //Pour le capteur de luminosité P
 uint8_t sensorPHPin = A2;
 uint8_t sensorFlowPin = 3;  //The pin location of the sensor
+uint8_t sensorLevelPin = A4;
+uint8_t sensorTempPin = 7;
 uint8_t sensorLumS = A0; //Pour le capteur de luminosité S
 
 uint8_t pHCalibrationPin = 2;
@@ -52,6 +55,58 @@ int measureFlow() //Pour mesure le débit avec le débitmètre
 void rpm()     //This is the function that the interupt calls
 {
   NbTopsFan++;  //This function measures the rising and falling edge of the hall effect sensors signal
+}
+
+//Pour capteur de température
+OneWire ds(sensorTempPin);
+
+int getRawTemp(){
+  //returns the temperature from one DS18S20 in DEG Celsius
+
+  byte data[12];
+  byte addr[8];
+
+  if (!ds.search(addr)) {
+      //no more sensors on chain, reset search
+      ds.reset_search();
+      Serial.println("No more sensor !");
+      return -1000;
+  }
+
+  if (OneWire::crc8(addr, 7) != addr[7]) {
+      Serial.println("CRC is not valid!");
+      return -1000;
+  }
+
+  if (addr[0] != 0x10 && addr[0] != 0x28) {
+      Serial.println("Device is not recognized");
+      return -1000;
+  }
+
+  ds.reset();
+  ds.select(addr);
+  ds.write(0x44,1); // start conversion, with parasite power on at the end
+
+  byte present = ds.reset();
+  ds.select(addr);    
+  ds.write(0xBE); // Read Scratchpad
+
+  
+  for (int i = 0; i < 9; i++) { // we need 9 bytes
+    data[i] = ds.read();
+  }
+  
+  ds.reset_search();
+  
+  byte MSB = data[1];
+  byte LSB = data[0];
+
+  Serial.println(((MSB << 8) | LSB));
+  return ((MSB << 8) | LSB);
+  /*float tempRead = ((MSB << 8) | LSB); //using two's compliment
+  float TemperatureSum = tempRead / 16;
+  
+  return TemperatureSum;*/
 }
 
 uint16_t analogReadAvg(uint8_t pin, unsigned int num, unsigned int d) {
@@ -101,7 +156,7 @@ void acquireMeasures() {
     //A modifie avec le code de l'interfacage capteur
     ppl[pos].id = PacketID::Measure;
     ppl[pos].date=0;
-    ppl[pos].measure.temp=random(0,255);
+    ppl[pos].measure.temp=getRawTemp();
 
     //Pour la lumière
     ppl[pos].measure.lumP=analogReadAvg(sensorLumP);
@@ -110,7 +165,8 @@ void acquireMeasures() {
     ppl[pos].measure.flow=measureFlow();  //On récupère la valeur du débit en Litre/heure
     
     ppl[pos].measure.pH=analogReadAvg(sensorPHPin);
-    ppl[pos].measure.level=random(0,1023);
+    
+    ppl[pos].measure.level=analogReadAvg(sensorLevelPin);
     pos++;
     digitalWrite(greenLED, LOW);
   } else {
