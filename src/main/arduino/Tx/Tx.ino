@@ -3,32 +3,32 @@
 #include  <OneWire.h>
 #include  "packet.h"
 
-#define BUFFER_SIZE 70
+#define BUFFER_SIZE 80
 
 RF24 radio(9,10);
 
-unsigned int pos = 0;
+uint8_t pos = 0; //MAX_BUFFER_SIZE 255
 payload_t ppl[BUFFER_SIZE]; // Données non expédiées
 
-uint32_t wait = 2000;
+const uint32_t wait = 2000;
 uint32_t lastMeasureTime = 0;
 
-uint8_t sensorLumP = A1; //Pour le capteur de luminosité P
-uint8_t sensorPHPin = A2;
-uint8_t sensorFlowPin = 3;  //The pin location of the sensor
-uint8_t sensorLevelPin = A4;
-uint8_t sensorTempPin = 7;
-uint8_t sensorLumS = A0; //Pour le capteur de luminosité S
+const uint8_t sensorLumP = A1; //Pour le capteur de luminosité P
+const uint8_t sensorPHPin = A2;
+const uint8_t sensorFlowPin = 3;  //The pin location of the sensor
+const uint8_t sensorLevelPin = A4;
+const uint8_t sensorTempPin = 7;
+const uint8_t sensorLumS = A0; //Pour le capteur de luminosité S
 
-uint8_t pHCalibrationPin = 2;
-uint8_t pHCalibrationLED = 4;
-uint8_t redLED = 5;
-uint8_t greenLED = 6;
+const uint8_t pHCalibrationPin = 2;
+const uint8_t pHCalibrationLED = 4;
+const uint8_t redLED = 5;
+const uint8_t greenLED = 6;
 
 boolean buttonState;             // the current reading from the input pin
 boolean lastButtonState = LOW;   // the previous reading from the input pin
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
+const unsigned int debounceDelay = 50;    // the debounce time; increase if the output flickers
 
 enum class Mode : uint8_t {
   Measure,
@@ -69,17 +69,17 @@ int getRawTemp(){
   if (!ds.search(addr)) {
       //no more sensors on chain, reset search
       ds.reset_search();
-      Serial.println("No more sensor !");
+      Serial.println(F("No more sensor !"));
       return -1000;
   }
 
   if (OneWire::crc8(addr, 7) != addr[7]) {
-      Serial.println("CRC is not valid!");
+      Serial.println(F("CRC is not valid!"));
       return -1000;
   }
 
   if (addr[0] != 0x10 && addr[0] != 0x28) {
-      Serial.println("Device is not recognized");
+      Serial.println(F("Device is not recognized"));
       return -1000;
   }
 
@@ -101,7 +101,6 @@ int getRawTemp(){
   byte MSB = data[1];
   byte LSB = data[0];
 
-  Serial.println(((MSB << 8) | LSB));
   return ((MSB << 8) | LSB);
   /*float tempRead = ((MSB << 8) | LSB); //using two's compliment
   float TemperatureSum = tempRead / 16;
@@ -195,7 +194,7 @@ void sendMeasures() {
     {
       Serial.print(F(" échec ! ")); 
       Serial.print((micros() - timer)*0.001);
-      Serial.println("ms");
+      Serial.println(F("ms"));
       for (unsigned int j = i; j < pos; j++) {
         ppl[j-i] = ppl[j];
       }
@@ -227,9 +226,9 @@ void startPHCalibration() {
   digitalWrite(pHCalibrationLED, HIGH);
   digitalWrite(redLED, HIGH);
   Serial.println();
-  Serial.println(F("*******************************************************"));
-  Serial.println("Début calibration pH...");
-  Serial.print(" - Solution PH 4");
+  Serial.println(F("********************************"));
+  Serial.println(F("Début calibration pH..."));
+  Serial.print(F(" - Solution PH 4"));
 }
 
 void pHCalibrate() {
@@ -245,7 +244,7 @@ void pHCalibrate() {
     calibrationState = CalibrationState::PH7;
     digitalWrite(redLED, LOW);
     digitalWrite(greenLED, HIGH);
-    Serial.print(" - Solution PH 7");
+    Serial.print(F(" - Solution PH 7"));
   } else {
     ppl[pos].ph_calibration.ph7 = analogReadPrecise(sensorPHPin);
 
@@ -257,7 +256,7 @@ void pHCalibrate() {
     mode = Mode::Measure;
     digitalWrite(greenLED, LOW);
     digitalWrite(pHCalibrationLED, LOW);
-    Serial.println("Fin de la calibration pH !");
+    Serial.println(F("Fin de la calibration pH !"));
   }
 }
 
