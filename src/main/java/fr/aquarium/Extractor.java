@@ -109,12 +109,11 @@ public class Extractor {
         }
     }
     
-    public void dumpToCSV() {
+    public void dumpToCSV(Calendar start, Calendar stop, int interval) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
-        String date = dateFormat.format(new Date());
-        String filename = "aquarium_measures_" + date + ".csv";
+        String filename = "aquarium_" + dateFormat.format(start.getTime()) + "_" + dateFormat.format(stop.getTime()) + ".csv";
             
-        List<Measure> measures = database.queryMeasures(new GregorianCalendar(2017, Calendar.JANUARY, 1), Calendar.getInstance());
+        List<Measure> measures = database.queryMeasures(start, stop, interval);
         
         try (PrintWriter writer = new PrintWriter(filename)) {
             writer.println("date;sensorId;value");
