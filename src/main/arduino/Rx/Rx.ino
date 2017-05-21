@@ -19,8 +19,10 @@ unsigned long lastSerialAck = 0;
 boolean forceStop = false;
 
 //Affichage des données simplifié
+#define PRINT_PADDING 0
 
 void printPadding(unsigned int value, unsigned int space) {
+#if PRINT_PADDING
   //Padding
   unsigned int size = max(1, ceil(log10(value+1)));
   if (size > space)
@@ -29,7 +31,9 @@ void printPadding(unsigned int value, unsigned int space) {
   for (unsigned int j = 0;j<(space-size);j++){
     Serial.print(" ");
   }
+#endif
 }
+
 void printSerialMeasure(unsigned int id, unsigned int value) {
   
   Serial.print(id);
