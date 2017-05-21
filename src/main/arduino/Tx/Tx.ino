@@ -3,7 +3,7 @@
 #include  <OneWire.h>
 #include  "packet.h"
 
-#define BUFFER_SIZE 50
+#define BUFFER_SIZE 70
 
 RF24 radio(9,10);
 
