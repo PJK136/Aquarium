@@ -125,6 +125,33 @@ public class Database {
         }
     }
 
+   /**
+     * Récupère les mesures entre deux moments par intervalle donné
+     * @param start À partir de ce moment (inclus)
+     * @param stop Jusqu'à ce moment (exclu)
+     * @param interval Intervalle en secondes
+     * @return Liste de mesures
+     */
+    public List<Measure> queryMeasures(Calendar start, Calendar stop, int interval) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Measure> measures = new LinkedList<>();
+            PreparedStatement ps = connection.prepareStatement("SELECT sensorId, min(MeasureDate), avg(rawValue), avg(value) "
+                    + "FROM Measure WHERE MeasureDate>=? and MeasureDate<? Group by SensorId, UNIX_TIMESTAMP(MeasureDate) DIV ? "
+                    + "ORDER BY MeasureDate");
+            ps.setTimestamp(1, new Timestamp(start.getTimeInMillis()));
+            ps.setTimestamp(2, new Timestamp(stop.getTimeInMillis()));
+            ps.setInt(3, interval);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                measures.add(new Measure(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("min(MeasureDate)")), rs.getInt("avg(rawValue)"), rs.getDouble("avg(value)")));
+            }
+            return measures;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
+    }
+    
     /**
      * Récupère les mesures pour un capteur donné entre deux moments
      * @param sensorId Identifiant du capteur
@@ -135,7 +162,8 @@ public class Database {
     public List<Measure> queryMeasures(int sensorId, Calendar start, Calendar stop) {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<>();
-            PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value " + "FROM Measure " + "WHERE SensorId=? and MeasureDate>=? and MeasureDate<?;");
+            PreparedStatement ps = connection.prepareStatement("SELECT MeasureDate, rawValue, value "
+                    + "FROM Measure WHERE SensorId=? and MeasureDate>=? and MeasureDate<? ORDER BY MeasureDate;");
             ps.setInt(1, sensorId);
             ps.setTimestamp(2, new Timestamp(start.getTimeInMillis()));
             ps.setTimestamp(3, new Timestamp(stop.getTimeInMillis()));
@@ -149,7 +177,7 @@ public class Database {
             return null;
         }
     }
-
+    
      /**
      * Récupère les n-dernières mesures
      * @param count Nombre de mesures à récupérer
@@ -206,7 +234,7 @@ public class Database {
     public List<Measure> queryLastMeasuresByInterval(int sensorId, int count, int interval) {
         try (Connection connection = dataSource.getConnection()) {
             List<Measure> measures = new LinkedList<Measure>();
-            PreparedStatement ps = connection.prepareStatement("SELECT SensorId, MeasureDate, avg(rawValue), avg(value) "
+            PreparedStatement ps = connection.prepareStatement("SELECT SensorId, min(MeasureDate), avg(rawValue), avg(value) "
                     + "FROM Measure WHERE SensorId=? Group by SensorId, UNIX_TIMESTAMP(MeasureDate) DIV ? "
                     + "ORDER BY MeasureDate DESC LIMIT ?");
             ps.setInt(1, sensorId);
@@ -214,7 +242,7 @@ public class Database {
             ps.setInt(3, count);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                measures.add(new Measure(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("MeasureDate")), rs.getInt("avg(rawValue)"), rs.getDouble("avg(value)")));
+                measures.add(new Measure(rs.getInt("SensorId"), timestampToCalendar(rs.getTimestamp("min(MeasureDate)")), rs.getInt("avg(rawValue)"), rs.getDouble("avg(value)")));
             }
             return measures;
         } catch (SQLException ex) {
