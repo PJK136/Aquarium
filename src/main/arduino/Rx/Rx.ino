@@ -14,7 +14,7 @@ unsigned int ID_LUM_S=6;
 
 boolean isListening = false;
 unsigned long lastSerialAck = 0;
-#define TIMEOUT 2500000
+#define TIMEOUT 2500
 
 boolean forceStop = false;
 
