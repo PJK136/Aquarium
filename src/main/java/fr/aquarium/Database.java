@@ -137,7 +137,7 @@ public class Database {
             List<Measure> measures = new LinkedList<>();
             PreparedStatement ps = connection.prepareStatement("SELECT sensorId, min(MeasureDate), avg(rawValue), avg(value) "
                     + "FROM Measure WHERE MeasureDate>=? and MeasureDate<? Group by SensorId, UNIX_TIMESTAMP(MeasureDate) DIV ? "
-                    + "ORDER BY MeasureDate");
+                    + "ORDER BY 2");
             ps.setTimestamp(1, new Timestamp(start.getTimeInMillis()));
             ps.setTimestamp(2, new Timestamp(stop.getTimeInMillis()));
             ps.setInt(3, interval);
@@ -236,7 +236,7 @@ public class Database {
             List<Measure> measures = new LinkedList<Measure>();
             PreparedStatement ps = connection.prepareStatement("SELECT SensorId, min(MeasureDate), avg(rawValue), avg(value) "
                     + "FROM Measure WHERE SensorId=? Group by SensorId, UNIX_TIMESTAMP(MeasureDate) DIV ? "
-                    + "ORDER BY MeasureDate DESC LIMIT ?");
+                    + "ORDER BY 2 DESC LIMIT ?");
             ps.setInt(1, sensorId);
             ps.setInt(2, interval);
             ps.setInt(3, count);
