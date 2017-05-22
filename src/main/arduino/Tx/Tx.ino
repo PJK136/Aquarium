@@ -3,15 +3,18 @@
 #include  <OneWire.h>
 #include  "packet.h"
 
-#define BUFFER_SIZE 80
+#define BUFFER_SIZE 75
 
 RF24 radio(9,10);
 
 uint8_t pos = 0; //MAX_BUFFER_SIZE 255
 payload_t ppl[BUFFER_SIZE]; // Données non expédiées
 
-const uint32_t wait = 2000;
+const uint32_t wait = 40000;
 uint32_t lastMeasureTime = 0;
+uint32_t lastUpdateTime = 0;
+const uint32_t sendInterval = 10000;
+uint32_t lastSendTime = 0;
 
 const uint8_t sensorLumP = A1; //Pour le capteur de luminosité P
 const uint8_t sensorPHPin = A2;
@@ -47,7 +50,7 @@ int measureFlow() //Pour mesure le débit avec le débitmètre
 {
   NbTopsFan = 0;   //Set NbTops to 0 ready for calculations
   attachInterrupt(digitalPinToInterrupt(sensorFlowPin), rpm, RISING); //interrupt is attached
-  delay (1000);   //Wait 1 second
+  delay (5000);   //Wait 5 second
   detachInterrupt(digitalPinToInterrupt(sensorFlowPin)); //interrupt is detached
   return NbTopsFan;
 }
@@ -102,10 +105,25 @@ int getRawTemp(){
   byte LSB = data[0];
 
   return ((MSB << 8) | LSB);
-  /*float tempRead = ((MSB << 8) | LSB); //using two's compliment
-  float TemperatureSum = tempRead / 16;
-  
-  return TemperatureSum;*/
+}
+
+unsigned int getRawTempAvg() {
+  uint16_t num = 0;
+  uint32_t sum = 0;
+  for (unsigned int i = 0; i < 250; i++) {
+    int value = getRawTemp();
+    if (value >= 0) {
+      sum += value;
+      num++;
+    }
+    
+    delay(10);
+  }
+
+  if (num > 0)
+    return sum/num;
+  else
+    return -1000;
 }
 
 uint16_t analogReadAvg(uint8_t pin, unsigned int num, unsigned int d) {
@@ -120,31 +138,32 @@ uint16_t analogReadAvg(uint8_t pin, unsigned int num, unsigned int d) {
 }
 
 uint16_t analogReadAvg(uint8_t pin) {
-  return analogReadAvg(pin, 10, 1);
+  return analogReadAvg(pin, 500, 10);
 }
 
 uint16_t analogReadPrecise(uint8_t pin) {
   return analogReadAvg(pin, 100, 10);
 }
 
-void updateLastMeasure() {
-    if (millis() >= lastMeasureTime) {
+void updateMeasures() {
+  if (millis() >= lastUpdateTime) {
     for (unsigned int i = 0; i < pos; i++) {
-      ppl[i].date += millis() - lastMeasureTime;
+      ppl[i].date += millis() - lastUpdateTime;
     }
   } else { //millis() a rebouclé à 0
     Serial.println(F("Fin d'un cycle de millis()"));
     for (unsigned int i = 0; i < pos; i++) {
-      ppl[i].date += (((unsigned int)(-1)) - lastMeasureTime) + millis() ;
+      ppl[i].date += (((unsigned int)(-1)) - lastUpdateTime) + millis() ;
     }
   }
 
-  lastMeasureTime = millis();
+  lastUpdateTime = millis();
 }
 
 void acquireMeasures() {
-  updateLastMeasure();
+  updateMeasures();
 
+  lastMeasureTime = millis();
   Serial.println();
   Serial.println(F("*******************************************************"));
   if (pos < BUFFER_SIZE) {
@@ -155,7 +174,7 @@ void acquireMeasures() {
     //A modifie avec le code de l'interfacage capteur
     ppl[pos].id = PacketID::Measure;
     ppl[pos].date=0;
-    ppl[pos].measure.temp=getRawTemp();
+    ppl[pos].measure.temp=getRawTempAvg();
 
     //Pour la lumière
     ppl[pos].measure.lumP=analogReadAvg(sensorLumP);
@@ -178,6 +197,13 @@ void acquireMeasures() {
 void sendMeasures() {
   radio.powerUp();
   
+  lastSendTime = millis();
+
+  if (!pos)
+    return;
+
+  updateMeasures();
+
   Serial.println(F("Tentative d'envoi : "));
   unsigned long timer = micros();
   
@@ -203,6 +229,7 @@ void sendMeasures() {
   }
 
   pos -= i;
+  radio.powerDown();
 }
 
 boolean hasBeenPressed() {
@@ -233,7 +260,7 @@ void startPHCalibration() {
 
 void pHCalibrate() {
   if (calibrationState == CalibrationState::PH4) {   
-    updateLastMeasure();
+    updateMeasures();
     ppl[pos].id = PacketID::PHCalibration;
     ppl[pos].date=0;
     ppl[pos].ph_calibration.ph4 = analogReadPrecise(sensorPHPin);
@@ -305,13 +332,15 @@ void loop(void) {
     if (hasBeenPressed() && pos < BUFFER_SIZE) {
       startPHCalibration();
     }
-    else if (millis() - lastMeasureTime > wait) {
+    else if (lastMeasureTime == 0 || millis() - lastMeasureTime > wait) {
       acquireMeasures();
       sendMeasures();
       Serial.print(F("Prochaine mesure dans "));
       Serial.print((wait - (millis() - lastMeasureTime))/1000.);
       Serial.println(F(" secondes..."));
-      radio.powerDown();
+    }
+    else if (lastSendTime == 0 || millis() - lastSendTime > sendInterval) {
+      sendMeasures();
     }
   } else if (mode == Mode::PHCalibration) {
      if (hasBeenPressed()) {
