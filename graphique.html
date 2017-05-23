@@ -4,58 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <script src="./data.js"></script>
     <script>
-      $(function() {
-
-        Highcharts.setOptions({
-          global: {
-            useUTC: false
-          },
-          lang: {
-            loading: 'Chargement...',
-            months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-            weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
-            shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
-            thousandsSep: " ",
-            decimalPoint: ','
-          }
-        }
-        );
-
-        $('#container').highcharts({
-          chart: {
-            type: 'spline'
-          },
-          title: {
-            text: 'Graphique des données capteur'
-          },
-          subtitle: {
-            text: ''
-          },
-          xAxis: {
-            type: 'datetime',
-            /*dateTimeLabelFormats: { // don't display the dummy year
-             month: '%e. %b',
-             year: '%b'
-             },*/
-            title: {
-              text: 'Date'
+        $(function() {
+            for (i = 0; i < MEASURE_SERIES.length; i++) {
+                MEASURE_SERIES[i].data.reverse();
             }
-          },
-          yAxis: {
-            /*title: {
-              text: 'Valeur capteur'
-            },
-            min: -10,
-            max: 40*/
-          },
 
-          series: MEASURE_SERIES
+            Highcharts.setOptions({
+                global: {
+                    useUTC: false
+                },
+                lang: {
+                    loading: 'Chargement...',
+                    months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                    weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+                    shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+                    thousandsSep: " ",
+                    decimalPoint: ','
+                }
+            });
+
+            $('#container').highcharts('StockChart', {
+                chart: {
+                    type: 'spline'
+                },
+                title: {
+                    text: 'Graphique des données capteur'
+                },
+                subtitle: {
+                    text: ''
+                },
+                rangeSelector: {
+                    selected: 1,
+                    buttons: [{
+                            type: 'hour',
+                            count: 1,
+                            text: '1h'
+                    }, {
+                            type: 'hour',
+                            count: 3,
+                            text: '3h'
+                    }, {
+                            type: 'hour',
+                            count: 6,
+                            text: '6h'
+                    }, {
+                            type: 'hour',
+                            count: 12,
+                            text: '12h'
+                    }, {
+                            type: 'day',
+                            count: 1,
+                            text: '1d'
+                    }, {
+                            type: 'week',
+                            count: 1,
+                            text: '1w'
+                    }, {
+                            type: 'month',
+                            count: 1,
+                            text: '1m'
+                    }, {
+                            type: 'all',
+                            text: 'All'
+                    }]
+                },
+                legend: {
+                    enabled: true,
+                },
+                xAxis: {
+                    type: 'datetime',
+                    ordinal: false,
+                    /*dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%e. %b',
+                    year: '%b'
+                    },*/
+                    title: {
+                        text: 'Date'
+                    }
+                },
+                yAxis: {
+                    /*title: {
+                    text: 'Valeur capteur'
+                    },
+                    min: -10,
+                    max: 40*/
+                },
+                plotOptions: {
+                    series: {
+                        gapSize: 10
+                    }
+                },
+                series: MEASURE_SERIES
+            });
+
         });
-
-      });
 
     </script>
   </head>
