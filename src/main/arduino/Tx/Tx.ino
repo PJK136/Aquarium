@@ -10,7 +10,7 @@ RF24 radio(9,10);
 uint8_t pos = 0; //MAX_BUFFER_SIZE 255
 payload_t ppl[BUFFER_SIZE]; // Données non expédiées
 
-const uint32_t wait = 40000;
+const uint32_t wait = 60000;
 uint32_t lastMeasureTime = 0;
 uint32_t lastUpdateTime = 0;
 const uint32_t sendInterval = 10000;
@@ -183,8 +183,9 @@ void acquireMeasures() {
     ppl[pos].measure.flow=measureFlow();  //On récupère la valeur du débit en Litre/heure
     
     ppl[pos].measure.pH=analogReadAvg(sensorPHPin);
-    
-    ppl[pos].measure.level=analogReadAvg(sensorLevelPin);
+
+    analogRead(sensorLevelPin); //Discard first measure
+    ppl[pos].measure.level=analogRead(sensorLevelPin);
     pos++;
     digitalWrite(greenLED, LOW);
   } else {
@@ -332,14 +333,14 @@ void loop(void) {
     if (hasBeenPressed() && pos < BUFFER_SIZE) {
       startPHCalibration();
     }
-    else if (lastMeasureTime == 0 || millis() - lastMeasureTime > wait) {
+    else if (millis() - lastMeasureTime > wait) {
       acquireMeasures();
       sendMeasures();
       Serial.print(F("Prochaine mesure dans "));
       Serial.print((wait - (millis() - lastMeasureTime))/1000.);
       Serial.println(F(" secondes..."));
     }
-    else if (lastSendTime == 0 || millis() - lastSendTime > sendInterval) {
+    else if (millis() - lastSendTime > sendInterval) {
       sendMeasures();
     }
   } else if (mode == Mode::PHCalibration) {
