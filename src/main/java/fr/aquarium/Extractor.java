@@ -31,7 +31,7 @@ public class Extractor {
         this.database = database;
     }
 
-    public void schedule(final int count) {
+    public void schedule(final int interval, final int count) {
         if (timer != null)
             timer.cancel();
         
@@ -42,7 +42,7 @@ public class Extractor {
             public void run() {
                 dumpToJSON(count);
             }
-        }, 0, 10000);
+        }, 0, interval);
     }
     
     public void cancel() {
@@ -69,8 +69,8 @@ public class Extractor {
         });
     }
     
-    public void dumpToJSON(final int count, final int interval) {
-        dumpToJSON(JSON_FILENAME, new MeasureQuery() {
+    public void dumpToJSON(String filename, final int count, final int interval) {
+        dumpToJSON(filename, new MeasureQuery() {
             @Override
             public List<Measure> query(int sensorId) {
                 return database.queryLastMeasuresByInterval(sensorId, count, interval);

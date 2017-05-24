@@ -21,13 +21,13 @@ public class TestGlobal {
                 
             Receiver receiver = new Receiver(database, "COM11");
             Recorder recorder = new Recorder(database);
-            Monitor monitor = new Monitor(database, 1);
+            Monitor monitor = new Monitor(database, 8);
             Extractor extractor = new Extractor(database);
             
             receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
             
-            extractor.schedule(1000);
+            extractor.schedule(60000, 1000);
 
             receiver.run();
             
