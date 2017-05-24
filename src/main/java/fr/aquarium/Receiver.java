@@ -195,7 +195,7 @@ public class Receiver implements Runnable {
     private double computeRealValue(int sensorId, int rawValue) {
         switch (sensorId) {
             case 1: //Capteur luminosité P
-                return rawValue;
+                return 1023-rawValue;
             case 2: //Capteur pH
                 PHCalibration pHCalibration = database.queryLastPHCalibration(sensorId);
                 if (pHCalibration == null) {
@@ -215,11 +215,11 @@ public class Receiver implements Runnable {
             case 3: //Capteur débit
                 return rawValue*60/5.5/5;
             case 4: //Capteur niveau
-                return rawValue;
+                return 1023-rawValue;
             case 5: //Capteur température
                 return rawValue/16.;
             case 6: //Capteur luminosité S
-                return rawValue;
+                return 1023-rawValue;
             default:
                 logger.warn("Capteur {} inconnu, utilisation de la valeur brute : {}", sensorId, rawValue);
                 return rawValue;
