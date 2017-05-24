@@ -25,8 +25,8 @@
                     decimalPoint: ','
                 }
             });
-
-            $('#container').highcharts('StockChart', {
+			
+            var chart = Highcharts.stockChart('container', {
                 chart: {
                     type: 'spline'
                 },
@@ -97,8 +97,63 @@
                         gapSize: 10
                     }
                 },
-                series: MEASURE_SERIES
+                series: MEASURE_SERIES/*,
+				
+				responsive: {
+					rules: [{
+						condition: {
+							maxWidth: 500
+						},
+						chartOptions: {
+							legend: {
+								align: 'center',
+								verticalAlign: 'bottom',
+								layout: 'horizontal'
+							},
+							yAxis: {
+								labels: {
+									align: 'left',
+									x: 0,
+									y: -5
+								},
+								title: {
+									text: null
+								}
+							},
+							subtitle: {
+								text: null
+							},
+							credits: {
+								enabled: false
+							}
+						}
+					}]
+				}*/
             });
+			
+			chart.setSize(undefined,800);			
+			/*
+			$('#resizer').resizable({
+				// On resize, set the chart size to that of the
+				// resizer minus padding. If your chart has a lot of data or other
+				// content, the redrawing might be slow. In that case, we recommend
+				// that you use the 'stop' event instead of 'resize'.
+				resize: function () {
+						chart.setSize(
+						this.offsetWidth - 20,
+						this.offsetHeight - 20,
+						false
+					);
+				}
+			});
+			/*
+			$('#small').click(function () {
+				chart.setSize(400, 300);
+			});
+
+			$('#large').click(function () {
+				chart.setSize(600, 300);
+			});*/
 
         });
 
