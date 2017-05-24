@@ -213,7 +213,7 @@ public class Receiver implements Runnable {
                 
                 return value;
             case 3: //Capteur débit
-                return rawValue*60/5.5;
+                return rawValue*60/5.5/5;
             case 4: //Capteur niveau
                 return rawValue;
             case 5: //Capteur température
