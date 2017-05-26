@@ -110,7 +110,7 @@ int getRawTemp(){
 unsigned int getRawTempAvg() {
   uint16_t num = 0;
   uint32_t sum = 0;
-  for (unsigned int i = 0; i < 250; i++) {
+  for (unsigned int i = 0; i < 100; i++) {
     int value = getRawTemp();
     if (value >= 0) {
       sum += value;
@@ -138,7 +138,7 @@ uint16_t analogReadAvg(uint8_t pin, unsigned int num, unsigned int d) {
 }
 
 uint16_t analogReadAvg(uint8_t pin) {
-  return analogReadAvg(pin, 500, 10);
+  return analogReadAvg(pin, 100, 10);
 }
 
 uint16_t analogReadPrecise(uint8_t pin) {
@@ -314,6 +314,8 @@ void setup() {
   radio.setRetries(15,15);            //On met un délai de 4ms et un nombre max de tentatives de 15
   radio.openWritingPipe(ADDRESS);    // Ouvrir le Pipe en écriture
   radio.stopListening();
+
+  getRawTempAvg(); //Discard first measures
 }
 
 void loop(void) {
@@ -333,14 +335,14 @@ void loop(void) {
     if (hasBeenPressed() && pos < BUFFER_SIZE) {
       startPHCalibration();
     }
-    else if (millis() - lastMeasureTime > wait) {
+    else if (lastMeasureTime == 0 || millis() - lastMeasureTime > wait) {
       acquireMeasures();
       sendMeasures();
       Serial.print(F("Prochaine mesure dans "));
       Serial.print((wait - (millis() - lastMeasureTime))/1000.);
       Serial.println(F(" secondes..."));
     }
-    else if (millis() - lastSendTime > sendInterval) {
+    else if (lastSendTime == 0 || millis() - lastSendTime > sendInterval) {
       sendMeasures();
     }
   } else if (mode == Mode::PHCalibration) {
