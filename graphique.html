@@ -8,22 +8,55 @@
     <script src="./data.js"></script> <!-- fichier utilisé pour le chargement des données graphiques -->
     <script>
         $(function() {
-            yAxis = []
-            for (i = 0; i < MEASURE_SERIES.length; i++) {
-                MEASURE_SERIES[i].data.reverse();
-                MEASURE_SERIES[i].yAxis = i;
+            yAxis = [] //Liste des axes y
+            for (i = 0; i < MEASURE_SERIES.length; i++) { //Pour chaque série
+                MEASURE_SERIES[i].data.reverse(); // On inverse le tri de desc à asc
+                MEASURE_SERIES[i].yAxis = i; // On attribue l'axe y numéro i
                 if (i == 5) { //Même axe pour Luminosité P et S
                     MEASURE_SERIES[i].yAxis = 0;
                 }
                 
-                yAxis.push({
+                yAxis.push({ // On crée l'axe y numéro i associé
                         labels: {
                             style: {
-                                color: Highcharts.getOptions().colors[i]
+                                color: Highcharts.getOptions().colors[i] // Avec la couleur correspondante
                             }
                         },
                 });
             }
+            
+            diff = { // On crée la série diff
+                        name: "Différence Luminosité",
+                        data: [],
+                        yAxis: MEASURE_SERIES.length
+                   };
+            
+            // On la remplit
+            j = 0;
+            for (i = 0; i < MEASURE_SERIES[0].data.length; i++) { // On parcourt la série de luminosité P
+                while (MEASURE_SERIES[0].data[i][0] < MEASURE_SERIES[5].data[j][0]) { // Si la date de P est plus ancienne que S, on avant dans l'itération de P
+                    i++;
+                }
+                
+                while (MEASURE_SERIES[0].data[i][0] > MEASURE_SERIES[5].data[j][0]) { // Si la date de S est plus nouvelle que S, on avance dans l'itération de S
+                    j++;
+                }
+                
+                // On ajoute la différence lorsque les dates sont identiques
+                diff.data.push([MEASURE_SERIES[0].data[i][0], MEASURE_SERIES[0].data[i][1]-MEASURE_SERIES[5].data[j][1]]);
+            }
+            
+            // On ajoute la série diff aux séries à afficher
+            MEASURE_SERIES.push(diff);
+            
+            // On crée l'axe y associé
+            yAxis.push({
+                    labels: {
+                        style: {
+                            color: Highcharts.getOptions().colors[MEASURE_SERIES.length-1]
+                        }
+                    },
+            });
             
             Highcharts.setOptions({
                 global: {
@@ -48,7 +81,7 @@
                     text: '',
                 },
                 rangeSelector: {
-                    selected: 1,
+                    selected: 4,
                     buttons: [{ // boutons de sélection de l'intervalle montré sur le graphique
                         type: 'hour',
                         count: 1,
@@ -103,7 +136,8 @@
                 yAxis: yAxis,
                 plotOptions: {
                     series: {
-                        gapSize: 10
+                        gapSize: 10,
+                        showInNavigator: true
                     }
                 },
                 series: MEASURE_SERIES
