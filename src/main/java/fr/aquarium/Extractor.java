@@ -6,9 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -20,11 +18,11 @@ import java.util.TimerTask;
 
 public class Extractor {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
+
     public final static String JSON_FILENAME = "data.js";
-    
+
     private final Database database;
-    
+
     private Timer timer;
 
     public Extractor(Database database) {
@@ -34,9 +32,9 @@ public class Extractor {
     public void schedule(final int interval, final int count) {
         if (timer != null)
             timer.cancel();
-        
+
         timer = new Timer();
-        
+
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -44,22 +42,22 @@ public class Extractor {
             }
         }, 0, interval);
     }
-    
+
     public void cancel() {
         if (timer != null)
             timer.cancel();
     }
-    
+
     private class JSONSensor {
         public String name;
         public List<List> data;
-        
+
         public JSONSensor(String name) {
             this.name = name;
             this.data = new LinkedList<List>();
         }
     }
-    
+
     public void dumpToJSON(final int count) {
         dumpToJSON(JSON_FILENAME, new MeasureQuery() {
             @Override
@@ -68,7 +66,7 @@ public class Extractor {
             }
         });
     }
-    
+
     public void dumpToJSON(String filename, final int count, final int interval) {
         dumpToJSON(filename, new MeasureQuery() {
             @Override
@@ -77,11 +75,11 @@ public class Extractor {
             }
         });
     }
-    
+
     private interface MeasureQuery {
         List<Measure> query(int sensorId);
     }
-    
+
     private void dumpToJSON(String filename, MeasureQuery query) {
         List<Sensor> sensors = database.querySensors();
         List<JSONSensor> jss = new ArrayList<JSONSensor>(sensors.size());
@@ -96,8 +94,8 @@ public class Extractor {
             }
             jss.add(js);
         }
-        
-        try (PrintWriter writer = new PrintWriter(filename)) {
+
+        try (PrintWriter writer = new PrintWriter(filename, "UTF-8"))) {
 
             writer.println("var MEASURE_SERIES = ");
             writer.println(new Gson().toJson(jss));
@@ -108,20 +106,20 @@ public class Extractor {
             logger.error("Impossible d'enregistrer les mesures JSON", ex);
         }
     }
-    
+
     public void dumpToCSV(Calendar start, Calendar stop, int interval) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         String filename = "aquarium_" + dateFormat.format(start.getTime()) + "_" + dateFormat.format(stop.getTime()) + ".csv";
-            
+
         List<Measure> measures = database.queryMeasures(start, stop, interval);
-        
-        try (PrintWriter writer = new PrintWriter(filename)) {
+
+        try (PrintWriter writer = new PrintWriter(filename, "UTF-8")) {
             writer.println("date;sensorId;value");
-            
+
             for (Measure measure : measures) {
                 writer.println(measure.getDate().getTimeInMillis()+";"+measure.getSensorId()+";"+measure.getValue());
             }
-            
+
             logger.info("Mesures enregistrées en CSV dans {}", filename);
         } catch (FileNotFoundException ex) {
             logger.error("Impossible d'enregistrer les mesures CSV", ex);
