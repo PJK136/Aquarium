@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.google.gson.Gson;
+import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,6 +40,7 @@ public class Extractor {
             @Override
             public void run() {
                 dumpToJSON(count);
+                dumpToCSV(count);
             }
         }, 0, interval);
     }
@@ -95,14 +97,14 @@ public class Extractor {
             jss.add(js);
         }
 
-        try (PrintWriter writer = new PrintWriter(filename, "UTF-8"))) {
+        try (PrintWriter writer = new PrintWriter(filename, "UTF-8")) {
 
             writer.println("var MEASURE_SERIES = ");
             writer.println(new Gson().toJson(jss));
             writer.println(";");
 
             logger.info("Mesures enregistrées en JSON dans {}", filename);
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException|UnsupportedEncodingException ex) {
             logger.error("Impossible d'enregistrer les mesures JSON", ex);
         }
     }
@@ -114,14 +116,39 @@ public class Extractor {
         List<Measure> measures = database.queryMeasures(start, stop, interval);
 
         try (PrintWriter writer = new PrintWriter(filename, "UTF-8")) {
-            writer.println("date;sensorId;value");
+            writer.println("date,sensorId,value");
 
             for (Measure measure : measures) {
-                writer.println(measure.getDate().getTimeInMillis()+";"+measure.getSensorId()+";"+measure.getValue());
+                writer.println(measure.getDate().getTimeInMillis()+","+measure.getSensorId()+","+measure.getValue());
             }
 
             logger.info("Mesures enregistrées en CSV dans {}", filename);
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException|UnsupportedEncodingException ex) {
+            logger.error("Impossible d'enregistrer les mesures CSV", ex);
+        }
+    }
+    
+    public void dumpToCSV(final int count) {
+        dumpToCSV(JSON_FILENAME, new MeasureQuery() {
+            @Override
+            public List<Measure> query(int sensorId) {
+                return database.queryLastMeasures(sensorId, count);
+            }
+        });
+    }
+    
+    public void dumpToCSV(String filename, MeasureQuery query) {
+        try (PrintWriter writer = new PrintWriter(filename, "UTF-8")) {
+            writer.println("Capteur,Date,Valeur");
+            List<Sensor> sensors = database.querySensors();
+            for (Sensor sensor : sensors) {
+                List<Measure> measures = query.query(sensor.getId());
+                for (Measure measure : measures) {
+                    writer.println(sensor.getName() + "," + measure.getDate().getTimeInMillis() + "," + measure.getValue());
+                }
+            }
+            logger.info("Mesures enregistrées en CSV dans {}", filename);
+        } catch (FileNotFoundException|UnsupportedEncodingException ex) {
             logger.error("Impossible d'enregistrer les mesures CSV", ex);
         }
     }
