@@ -21,6 +21,7 @@ public class Extractor {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public final static String JSON_FILENAME = "data.js";
+    public final static String CSV_FILENAME = "data.csv";
 
     private final Database database;
 
@@ -129,7 +130,7 @@ public class Extractor {
     }
     
     public void dumpToCSV(final int count) {
-        dumpToCSV(JSON_FILENAME, new MeasureQuery() {
+        dumpToCSV(CSV_FILENAME, new MeasureQuery() {
             @Override
             public List<Measure> query(int sensorId) {
                 return database.queryLastMeasures(sensorId, count);
