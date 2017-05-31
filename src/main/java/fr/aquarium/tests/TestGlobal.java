@@ -27,7 +27,7 @@ public class TestGlobal {
             receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
             
-            extractor.schedule(60000, 10000);
+            extractor.schedule(60000, 20000);
 
             receiver.run();
             
