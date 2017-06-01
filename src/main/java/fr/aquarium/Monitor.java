@@ -23,14 +23,16 @@ public class Monitor implements MeasureListener {
     private final Database database;
     private final String username;
     private final String password;
+    private final String recipients;
     
     private Date lastEmailSent;
 
-    public Monitor(Database database, int fishId, String username, String password) {
+    public Monitor(Database database, int fishId, String username, String password, String recipients) {
         this.database = database;
         this.fishId = fishId;
         this.username = username;
         this.password = password;
+        this.recipients = recipients;
     }
     
     @Override
@@ -81,7 +83,7 @@ public class Monitor implements MeasureListener {
             }
             builder.append("\nVeuillez vérifier votre installation au plus vite !");
             
-            sendEmail("xxx.xxx@xxx.xxx", "[Aquarium] Valeurs limites atteintes", builder.toString());
+            sendEmail("[Aquarium] Valeurs limites atteintes", builder.toString());
         }
         
     }
@@ -91,7 +93,7 @@ public class Monitor implements MeasureListener {
         //Nop
     }
     
-    public void sendEmail(String recipients, String subject, String text) {
+    public void sendEmail(String subject, String text) {
         lastEmailSent = new Date();
         
         Properties props = new Properties();

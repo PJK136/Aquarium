@@ -22,7 +22,7 @@ public class TestGlobal {
             Receiver receiver = new Receiver(database, "COM11");
             //FakeReceiver receiver = new FakeReceiver();
             Recorder recorder = new Recorder(database);
-            Monitor monitor = new Monitor(database, 8, "xxx.xxx@xxx.xxx", "xxx.xxx@xxx.xxx");
+            Monitor monitor = new Monitor(database, 8, "xxx.xxx@xxx.xxx", "xxx.xxx@xxx.xxx", "xxx.xxx@xxx.xxx");
             Extractor extractor = new Extractor(database);
             
             receiver.addMeasureListener(recorder);
