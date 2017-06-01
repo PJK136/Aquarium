@@ -3,6 +3,7 @@ package fr.aquarium.tests;
 import fr.aquarium.Measure;
 import fr.aquarium.MeasureEvent;
 import fr.aquarium.MeasureListener;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,7 +22,7 @@ public class FakeReceiver implements Runnable {
     Timer timer;
     
     
-    public FakeReceiver() {
+    public FakeReceiver() throws IOException {
         
     }
     
