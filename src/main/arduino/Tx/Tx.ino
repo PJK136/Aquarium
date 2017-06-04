@@ -185,7 +185,7 @@ void acquireMeasures() {
     ppl[pos].measure.pH=analogReadAvg(sensorPHPin);
 
     analogRead(sensorLevelPin); //Discard first measure
-    ppl[pos].measure.level=analogRead(sensorLevelPin);
+    ppl[pos].measure.level=analogReadAvg(sensorPHPin, 10, 10);
     pos++;
     digitalWrite(greenLED, LOW);
   } else {
