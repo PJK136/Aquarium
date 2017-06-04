@@ -38,22 +38,23 @@ public class ArduinoUsbChannel {
         this.vcpInputDataStreamWriter = new PipedOutputStream(this.vcpInputInnerStream);
 
     }
-
-    public static String getOneComPort() {
-
-        String myVirtualComPort = null;
-
+    
+    public static String[] getComPorts() {
         logger.debug("COM Port Names : ");
 
         String[] portNames = SerialPortList.getPortNames();
         for (String portName : portNames) {
             logger.debug(portName);
-            if (myVirtualComPort == null) {
-                myVirtualComPort = portName;
-            }
         }
+        
+        return portNames;
+    }
 
-        return myVirtualComPort;
+    public static String getOneComPort() {
+        String[] comPorts = getComPorts();
+        if (comPorts.length > 0)
+            return comPorts[0];
+        return null;
     }
 
     public void open() throws SerialPortException, IOException {

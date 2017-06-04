@@ -10,6 +10,7 @@ import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -83,7 +84,13 @@ public class Monitor implements MeasureListener {
             }
             builder.append("\nVeuillez vérifier votre installation au plus vite !");
             
-            sendEmail("[Aquarium] Valeurs limites atteintes", builder.toString());
+            try {
+                sendEmail(username, password, recipients,
+                        "[Aquarium] Valeurs limites atteintes", builder.toString());
+            } catch (MessagingException ex) {
+                logger.info("Impossible d'envoyer un email à {}", recipients, ex);
+            }
+            lastEmailSent = new Date();
         }
         
     }
@@ -93,9 +100,7 @@ public class Monitor implements MeasureListener {
         //Nop
     }
     
-    public void sendEmail(String subject, String text) {
-        lastEmailSent = new Date();
-        
+    public static void sendEmail(final String username, final String password, String recipients, String subject, String text) throws AddressException, MessagingException {
         Properties props = new Properties();
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.auth", "true");
@@ -110,20 +115,15 @@ public class Monitor implements MeasureListener {
             }
         });
 
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(username));
-            message.setRecipients(Message.RecipientType.TO,
-                InternetAddress.parse(recipients));
-            message.setSubject(subject);
-            message.setText(text);
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(username));
+        message.setRecipients(Message.RecipientType.TO,
+            InternetAddress.parse(recipients));
+        message.setSubject(subject);
+        message.setText(text);
 
-            Transport.send(message);
+        Transport.send(message);
 
-            logger.info("Email envoyé à {}", recipients);
-
-        } catch (MessagingException ex) {
-            logger.error("Impossible d'envoyer l'email à " + recipients, ex);
-        }
+        logger.info("Email envoyé à {}", recipients);
     }
 }

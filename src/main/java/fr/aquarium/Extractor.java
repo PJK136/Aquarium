@@ -31,7 +31,7 @@ public class Extractor {
         this.database = database;
     }
 
-    public void schedule(final int interval, final int count) {
+    public void schedule(final int interval, final int count, final boolean json, final boolean csv) {
         if (timer != null)
             timer.cancel();
 
@@ -40,8 +40,10 @@ public class Extractor {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                dumpToJSON(count);
-                dumpToCSV(count);
+                if (json)
+                    dumpToJSON(count);
+                if (csv)
+                    dumpToCSV(count);
             }
         }, 0, interval);
     }

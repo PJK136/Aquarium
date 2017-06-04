@@ -311,4 +311,35 @@ public class Database {
             ps.execute();
         }
     }
+    
+    public List<String> queryFishNames() {
+        try (Connection connection = dataSource.getConnection()) {
+            List<String> fishNames = new LinkedList<>();
+            String query = "SELECT FishName FROM Fish";
+            ResultSet rs = connection.createStatement().executeQuery(query);
+            while (rs.next()) {
+                fishNames.add(rs.getString("FishName"));
+            }
+            return fishNames;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return null;
+        }
+    }
+    
+    public int queryFishId(String fishName) {
+        try (Connection connection = dataSource.getConnection()) {
+            String query = "SELECT FishId FROM Fish WHERE FishName = ?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, fishName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("FishId");
+            }
+            return -1;
+        } catch (SQLException ex) {
+            logger.error(ex.getClass().getName(), ex);
+            return -1;
+        }
+    }
 }
