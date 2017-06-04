@@ -2,6 +2,7 @@ package fr.aquarium.tests;
 
 import fr.aquarium.Database;
 import fr.aquarium.Recorder;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +18,13 @@ public class TestRecorder {
             logger.error("Impossible de se connecter à la BD", ex);
         }
         
-        FakeReceiver receiver = new FakeReceiver();
+        FakeReceiver receiver = null;
+        try {
+            receiver = new FakeReceiver();
+            Recorder recorder = new Recorder(database);
+            receiver.addMeasureListener(recorder);
         
-        Recorder recorder = new Recorder(database);
-        receiver.addMeasureListener(recorder);
-        
-        receiver.run();
+            receiver.run();
+        } catch (IOException ex) {  }
     }
 }
