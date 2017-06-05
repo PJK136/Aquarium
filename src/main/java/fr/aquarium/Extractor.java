@@ -106,6 +106,15 @@ public class Extractor {
             }
         });
     }
+    
+    public void dumpToJSON(String filename, final Calendar from, final Calendar to) {
+        dumpToJSON(filename, new MeasureQuery() {
+            @Override
+            public List<Measure> query(int sensorId) {
+                return database.queryMeasures(sensorId, from, to);
+            }
+        });
+    }
 
     public interface MeasureQuery {
         List<Measure> query(int sensorId);
@@ -162,6 +171,15 @@ public class Extractor {
             @Override
             public List<Measure> query(int sensorId) {
                 return database.queryLastMeasures(sensorId, count);
+            }
+        });
+    }
+    
+    public void dumpToCSV(String filename, final Calendar from, final Calendar to) {
+        dumpToCSV(filename, new MeasureQuery() {
+            @Override
+            public List<Measure> query(int sensorId) {
+                return database.queryMeasures(sensorId, from, to);
             }
         });
     }
