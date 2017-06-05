@@ -3,9 +3,14 @@ package fr.aquarium.gui;
 import fr.aquarium.ArduinoUsbChannel;
 import fr.aquarium.Database;
 import fr.aquarium.Extractor;
+import fr.aquarium.Measure;
+import fr.aquarium.MeasureEvent;
+import fr.aquarium.MeasureListener;
 import fr.aquarium.Monitor;
+import fr.aquarium.PHCalibrationEvent;
 import fr.aquarium.Receiver;
 import fr.aquarium.Recorder;
+import fr.aquarium.Sensor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
@@ -48,7 +53,7 @@ public class MainFrame extends javax.swing.JFrame {
             @Override
             public void windowClosing(WindowEvent we) {
                 super.windowClosing(we);
-                if (receiverThread.isAlive()) {
+                if (receiverThread != null && receiverThread.isAlive()) {
                     receiver.stop();
                     try {
                         receiverThread.join();
@@ -188,8 +193,6 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         emailPassword = new javax.swing.JPasswordField();
         jLabel13 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        recipients = new javax.swing.JList<>();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
         filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
         jSeparator1 = new javax.swing.JSeparator();
@@ -218,6 +221,12 @@ public class MainFrame extends javax.swing.JFrame {
         filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
         emailTest = new javax.swing.JButton();
         filler10 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
+        filler11 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
+        jScrollPane3 = new javax.swing.JScrollPane();
+        statusArea = new javax.swing.JTextArea();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        recipients = new javax.swing.JList<>();
+        filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(200, 0), new java.awt.Dimension(200, 0), new java.awt.Dimension(200, 32767));
 
         jTextField2.setText("jTextField1");
 
@@ -228,7 +237,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel10.setText("Mot de passe : ");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(800, 600));
+        setMinimumSize(new java.awt.Dimension(800, 700));
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 48)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -406,20 +415,6 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 16;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel13, gridBagConstraints);
-
-        jScrollPane2.setPreferredSize(new java.awt.Dimension(200, 51));
-
-        recipients.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
-        recipients.setName(""); // NOI18N
-        recipients.setVisibleRowCount(5);
-        jScrollPane2.setViewportView(recipients);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 17;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weighty = 0.1;
-        jPanel1.add(jScrollPane2, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 13;
@@ -627,7 +622,7 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.weighty = 0.1;
         jPanel1.add(filler9, gridBagConstraints);
 
@@ -644,11 +639,44 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1.add(emailTest, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridy = 25;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weighty = 0.1;
         jPanel1.add(filler10, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(filler11, gridBagConstraints);
+
+        statusArea.setEditable(false);
+        statusArea.setColumns(20);
+        statusArea.setLineWrap(true);
+        statusArea.setRows(2);
+        jScrollPane3.setViewportView(statusArea);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(jScrollPane3, gridBagConstraints);
+
+        recipients.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        recipients.setVisibleRowCount(3);
+        jScrollPane1.setViewportView(recipients);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 17;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(jScrollPane1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        jPanel1.add(filler12, gridBagConstraints);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
@@ -790,6 +818,33 @@ public class MainFrame extends javax.swing.JFrame {
 
             receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
+            receiver.addMeasureListener(new MeasureListener() {
+                @Override
+                public void measureReceived(MeasureEvent event) {
+                    StringBuilder builder = new StringBuilder();
+                    for (Measure measure : event.getMeasures()){
+                        Sensor sensor = database.querySensor(measure.getSensorId());
+                        builder.append(sensor.getName());
+                        builder.append(" : ");
+                        builder.append(measure.getValue());
+                        builder.append(sensor.getUnitSuffix());
+                        builder.append(", ");
+                    }
+                    
+                    final String status = builder.toString();    
+                    java.awt.EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            statusArea.setText(status);
+                        }
+                    });
+                }
+
+                @Override
+                public void pHCalibrationReceived(PHCalibrationEvent event) {
+                    
+                }
+            });
 
             extractor.schedule(settings.interval * 1000, settings.lastMeasuresCount, settings.json, settings.csv);
 
@@ -883,6 +938,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTextField emailUsername;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler10;
+    private javax.swing.Box.Filler filler11;
+    private javax.swing.Box.Filler filler12;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
@@ -915,7 +972,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPasswordField jPasswordField2;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JCheckBox json;
@@ -930,6 +988,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton recipientAdd;
     private javax.swing.JList<String> recipients;
     private javax.swing.JButton recipientsRemove;
+    private javax.swing.JTextArea statusArea;
     private javax.swing.JButton supervisionStart;
     // End of variables declaration//GEN-END:variables
 }

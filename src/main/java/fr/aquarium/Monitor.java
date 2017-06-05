@@ -44,7 +44,7 @@ public class Monitor implements MeasureListener {
         String inf = "Mesures : ";
         for (Measure measure : measures){
             sensor = database.querySensor(measure.getSensorId());
-            inf = inf + sensor.getName()+ " : "+ measure.getValue() + ",\t";
+            inf = inf + sensor.getName()+ " : "+ measure.getValue() + sensor.getUnitSuffix() + ",\t";
         }
         logger.info(inf);
         
@@ -57,14 +57,13 @@ public class Monitor implements MeasureListener {
                 continue;
             
             double value = measure.getValue();
+            String unit = sensor.getUnitSuffix();
             if (value>threshold.getMax()){
-                String unit = sensor.getUnit() == null ? "" : (" " + sensor.getUnit());
                 String problem = "La mesure du capteur " + sensor.getName() + " est trop haute : "
                         + value + unit + " (Max : " + threshold.getMax() + unit + ").";
                 logger.error(problem);
                 problems.add(problem);
             } else if (value<threshold.getMin()){
-                String unit = sensor.getUnit() == null ? "" : (" " + sensor.getUnit());
                 String problem = "La mesure du capteur " + sensor.getName() + " est trop basse : "
                         + value + unit + " (Min : " + threshold.getMax() + unit + ").";
                 logger.error(problem);

@@ -22,4 +22,11 @@ public final class Sensor {
     public String getUnit() {
         return unit;
     }
+    
+    public String getUnitSuffix() {
+        if (unit == null)
+            return "";
+        else
+            return " " + unit;
+    }
  }
