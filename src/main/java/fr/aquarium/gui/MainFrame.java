@@ -32,6 +32,7 @@ public class MainFrame extends javax.swing.JFrame {
     private Extractor extractor;
     
     private Thread receiverThread;
+    private boolean stopTriggered;
     
     /**
      * Creates new form MainFrame
@@ -160,7 +161,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         arduinoPorts = new javax.swing.JComboBox<>();
-        refreshArduinoPorts = new javax.swing.JButton();
+        arduinoRefreshPorts = new javax.swing.JButton();
         arduinoConnect = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
@@ -199,6 +200,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel20 = new javax.swing.JLabel();
         filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
         emailTest = new javax.swing.JButton();
+        filler10 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
 
         jTextField2.setText("jTextField1");
 
@@ -219,28 +221,36 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1.setName(""); // NOI18N
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        jLabel2.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel2.setText("Identifiant : ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel2, gridBagConstraints);
+
+        mysqlUsername.setMinimumSize(new java.awt.Dimension(4, 27));
+        mysqlUsername.setPreferredSize(new java.awt.Dimension(4, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(mysqlUsername, gridBagConstraints);
 
+        jLabel3.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel3.setText("Mot de passe : ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel3, gridBagConstraints);
+
+        mysqlPassword.setMinimumSize(new java.awt.Dimension(4, 27));
+        mysqlPassword.setPreferredSize(new java.awt.Dimension(4, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(mysqlPassword, gridBagConstraints);
 
         mysqlConnect.setText("Se connecter");
@@ -252,7 +262,7 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(mysqlConnect, gridBagConstraints);
 
         jLabel4.setFont(jLabel4.getFont().deriveFont(jLabel4.getFont().getStyle() | java.awt.Font.BOLD));
@@ -260,7 +270,7 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel4, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -276,33 +286,35 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel5, gridBagConstraints);
 
+        jLabel6.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel6.setText("Port :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel6, gridBagConstraints);
 
+        arduinoPorts.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(arduinoPorts, gridBagConstraints);
 
-        refreshArduinoPorts.setText("Rafraîchir");
-        refreshArduinoPorts.addActionListener(new java.awt.event.ActionListener() {
+        arduinoRefreshPorts.setText("Rafraîchir");
+        arduinoRefreshPorts.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshArduinoPortsActionPerformed(evt);
+                arduinoRefreshPortsActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel1.add(refreshArduinoPorts, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        jPanel1.add(arduinoRefreshPorts, gridBagConstraints);
 
         arduinoConnect.setText("Se connecter");
         arduinoConnect.setEnabled(false);
@@ -314,7 +326,7 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(arduinoConnect, gridBagConstraints);
 
         jLabel7.setFont(jLabel7.getFont().deriveFont(jLabel7.getFont().getStyle() | java.awt.Font.BOLD));
@@ -322,7 +334,7 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 12;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel7, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -330,11 +342,12 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.gridwidth = 6;
         jPanel1.add(filler5, gridBagConstraints);
 
+        fishNames.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         fishNames.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 12;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(fishNames, gridBagConstraints);
 
         jLabel8.setFont(jLabel8.getFont().deriveFont(jLabel8.getFont().getStyle() | java.awt.Font.BOLD));
@@ -342,45 +355,53 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 14;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel8, gridBagConstraints);
 
+        jLabel11.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel11.setText("Identifiant : ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 14;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel11, gridBagConstraints);
 
+        jLabel12.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel12.setText("Mot de passe : ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 15;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel12, gridBagConstraints);
+
+        emailPassword.setMinimumSize(new java.awt.Dimension(4, 27));
+        emailPassword.setPreferredSize(new java.awt.Dimension(4, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 15;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(emailPassword, gridBagConstraints);
 
+        jLabel13.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel13.setText("Destinataire :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 16;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel13, gridBagConstraints);
 
         jScrollPane2.setPreferredSize(new java.awt.Dimension(200, 51));
 
+        recipients.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         recipients.setName(""); // NOI18N
-        recipients.setVisibleRowCount(3);
+        recipients.setVisibleRowCount(5);
         jScrollPane2.setViewportView(recipients);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 17;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weighty = 0.1;
         jPanel1.add(jScrollPane2, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -414,49 +435,57 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 19;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel14, gridBagConstraints);
 
+        jLabel15.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel15.setText("Nombre :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 19;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel15, gridBagConstraints);
 
+        lastMeasuresCount.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         lastMeasuresCount.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1000));
+        lastMeasuresCount.setMinimumSize(new java.awt.Dimension(31, 27));
+        lastMeasuresCount.setPreferredSize(new java.awt.Dimension(31, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 19;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(lastMeasuresCount, gridBagConstraints);
 
+        jLabel16.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel16.setText("Intervalle (s) :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 20;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel16, gridBagConstraints);
 
+        interval.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         interval.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        interval.setMinimumSize(new java.awt.Dimension(31, 27));
+        interval.setPreferredSize(new java.awt.Dimension(31, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 20;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(interval, gridBagConstraints);
 
         json.setText("JSON");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 19;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(json, gridBagConstraints);
 
         csv.setText("CSV");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 20;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(csv, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -475,21 +504,25 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 22;
         gridBagConstraints.gridwidth = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(supervisionStart, gridBagConstraints);
 
         emailUsername.setToolTipText("");
+        emailUsername.setMinimumSize(new java.awt.Dimension(4, 27));
+        emailUsername.setPreferredSize(new java.awt.Dimension(4, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 14;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(emailUsername, gridBagConstraints);
 
         newRecipient.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        newRecipient.setMinimumSize(new java.awt.Dimension(4, 27));
+        newRecipient.setPreferredSize(new java.awt.Dimension(4, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 16;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(newRecipient, gridBagConstraints);
 
         recipientAdd.setText("Ajouter");
@@ -501,7 +534,7 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 16;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(recipientAdd, gridBagConstraints);
 
         recipientsRemove.setText("Enlever");
@@ -517,54 +550,68 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
         jPanel1.add(recipientsRemove, gridBagConstraints);
 
+        jLabel17.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel17.setText("Port :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel17, gridBagConstraints);
 
+        jLabel18.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel18.setText("BDD :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel18, gridBagConstraints);
 
+        mysqlPort.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         mysqlPort.setModel(new javax.swing.SpinnerNumberModel(0, 0, 65535, 1));
+        mysqlPort.setMinimumSize(new java.awt.Dimension(86, 27));
+        mysqlPort.setPreferredSize(new java.awt.Dimension(31, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(mysqlPort, gridBagConstraints);
+
+        mysqlDb.setMinimumSize(new java.awt.Dimension(4, 27));
+        mysqlDb.setPreferredSize(new java.awt.Dimension(4, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(mysqlDb, gridBagConstraints);
 
+        jLabel19.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel19.setText("Serveur :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel19, gridBagConstraints);
+
+        mysqlServer.setMinimumSize(new java.awt.Dimension(4, 27));
+        mysqlServer.setPreferredSize(new java.awt.Dimension(4, 27));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(mysqlServer, gridBagConstraints);
 
+        jLabel20.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
         jLabel20.setText("Poisson :");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 12;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel20, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.weighty = 0.1;
         jPanel1.add(filler9, gridBagConstraints);
 
         emailTest.setText("Tester");
@@ -576,8 +623,15 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 14;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(emailTest, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weighty = 0.1;
+        jPanel1.add(filler10, gridBagConstraints);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
@@ -629,9 +683,9 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_mysqlConnectActionPerformed
 
-    private void refreshArduinoPortsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshArduinoPortsActionPerformed
+    private void arduinoRefreshPortsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_arduinoRefreshPortsActionPerformed
         refreshArduinoPorts();
-    }//GEN-LAST:event_refreshArduinoPortsActionPerformed
+    }//GEN-LAST:event_arduinoRefreshPortsActionPerformed
 
     private void arduinoConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_arduinoConnectActionPerformed
         updateSettings();
@@ -700,6 +754,9 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void supervisionStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_supervisionStartActionPerformed
         if (receiverThread == null || !receiverThread.isAlive()) {
+            if (extractor != null)
+                extractor.cancel();
+            
             updateSettings();
             int fishId = database.queryFishId(settings.fishName);
             if (fishId < 0) {
@@ -710,19 +767,79 @@ public class MainFrame extends javax.swing.JFrame {
                 return;
             }
 
-            recorder = new Recorder(database);
+            //recorder = new Recorder(database);
             monitor = new Monitor(database, fishId, settings.emailUsername, settings.emailPassword, recipientsToString());
             extractor = new Extractor(database);
 
-            receiver.addMeasureListener(recorder);
+            //receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
 
             extractor.schedule(settings.interval * 1000, settings.lastMeasuresCount, settings.json, settings.csv);
 
-            receiverThread = new Thread(receiver);
+            stopTriggered = false;
+            receiverThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    receiver.run();
+                    java.awt.EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            extractor.cancel();
+                            mysqlConnect.setEnabled(true);
+                            mysqlPort.setEnabled(true);
+                            mysqlDb.setEnabled(true);
+                            mysqlUsername.setEnabled(true);
+                            mysqlPassword.setEnabled(true);
+                            arduinoPorts.setEnabled(true);
+                            arduinoRefreshPorts.setEnabled(true);
+                            arduinoConnect.setEnabled(true);
+                            fishNames.setEnabled(true);
+                            emailUsername.setEnabled(true);
+                            emailPassword.setEnabled(true);
+                            emailTest.setEnabled(true);
+                            newRecipient.setEnabled(true);
+                            recipientAdd.setEnabled(true);
+                            recipientsRemove.setEnabled(true);
+                            lastMeasuresCount.setEnabled(true);
+                            interval.setEnabled(true);
+                            json.setEnabled(true);
+                            csv.setEnabled(true);
+                            supervisionStart.setText("Démarrer la supervision");
+                            if (stopTriggered == false) {
+                                JOptionPane.showMessageDialog(MainFrame.this,
+                                        "La supervision s'est arrêtée de manière imprévue !",
+                                        "Erreur lors de la supervision",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    });
+                }
+            });
             receiverThread.start();
 
             supervisionStart.setText("Supervision en cours...");
+            mysqlConnect.setEnabled(false);
+            mysqlPort.setEnabled(false);
+            mysqlDb.setEnabled(false);
+            mysqlUsername.setEnabled(false);
+            mysqlPassword.setEnabled(false);
+            arduinoPorts.setEnabled(false);
+            arduinoRefreshPorts.setEnabled(false);
+            arduinoConnect.setEnabled(false);
+            fishNames.setEnabled(false);
+            emailUsername.setEnabled(false);
+            emailPassword.setEnabled(false);
+            emailTest.setEnabled(false);
+            newRecipient.setEnabled(false);
+            recipientAdd.setEnabled(false);
+            recipientsRemove.setEnabled(false);
+            lastMeasuresCount.setEnabled(false);
+            interval.setEnabled(false);
+            json.setEnabled(false);
+            csv.setEnabled(false);
+        } else {
+            stopTriggered = true;
+            receiver.stop();
         }
     }//GEN-LAST:event_supervisionStartActionPerformed
 
@@ -730,29 +847,6 @@ public class MainFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -765,11 +859,13 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton arduinoConnect;
     private javax.swing.JComboBox<String> arduinoPorts;
+    private javax.swing.JButton arduinoRefreshPorts;
     private javax.swing.JCheckBox csv;
     private javax.swing.JPasswordField emailPassword;
     private javax.swing.JButton emailTest;
     private javax.swing.JTextField emailUsername;
     private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler10;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
@@ -817,7 +913,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton recipientAdd;
     private javax.swing.JList<String> recipients;
     private javax.swing.JButton recipientsRemove;
-    private javax.swing.JButton refreshArduinoPorts;
     private javax.swing.JButton supervisionStart;
     // End of variables declaration//GEN-END:variables
 }

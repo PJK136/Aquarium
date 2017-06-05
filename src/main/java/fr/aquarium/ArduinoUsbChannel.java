@@ -28,15 +28,7 @@ public class ArduinoUsbChannel {
     protected Thread writingThread;
 
     public ArduinoUsbChannel(String port) throws IOException {
-
         this.serialPort = new SerialPort(port);
-
-        this.vcpOutputDataStream = new PipedInputStream();
-        this.vcpOutputInnerStreamWriter = new PipedOutputStream(vcpOutputDataStream);
-
-        this.vcpInputInnerStream = new PipedInputStream();
-        this.vcpInputDataStreamWriter = new PipedOutputStream(this.vcpInputInnerStream);
-
     }
     
     public static String[] getComPorts() {
@@ -68,6 +60,13 @@ public class ArduinoUsbChannel {
 
         int mask = SerialPort.MASK_RXCHAR; // + SerialPort.MASK_CTS + SerialPort.MASK_DSR;//Prepare mask
         serialPort.setEventsMask(mask);//Set mask
+        
+        this.vcpOutputDataStream = new PipedInputStream();
+        this.vcpOutputInnerStreamWriter = new PipedOutputStream(vcpOutputDataStream);
+
+        this.vcpInputInnerStream = new PipedInputStream();
+        this.vcpInputDataStreamWriter = new PipedOutputStream(this.vcpInputInnerStream);
+        
         serialPort.addEventListener(new SerialPortEventListener() {
 
             @Override

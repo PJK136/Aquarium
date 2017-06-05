@@ -30,6 +30,8 @@ public class Receiver implements Runnable {
     
     private ArduinoUsbChannel vcpChannel;
     
+    private boolean stop = true;
+    
     public Receiver(Database database)  throws IOException {
         this(database, null);
     }
@@ -61,70 +63,54 @@ public class Receiver implements Runnable {
     
     @Override
     public void run() {
+        if (!this.stop) {
+            logger.error("Receiver déjà en cours d'exécution");
+            return;
+        }
+        
+        this.stop = false;
+        
         logger.info("Début de l'écoute Arduino");
         
         try {
-            //Lancement du thread de décodage
-            Thread readingThread = new Thread(new ReadingTask());
-            readingThread.start();
-                       
             //Ouverture du canal de communication
             vcpChannel.open();
             
-            Timer keepAliveTimer = new Timer();
-            keepAliveTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        vcpChannel.getWriter().write('A'); //ACK
-                    } catch (IOException ex) {
-                        logger.error(ex.getClass().getName(), ex);
-                    }
-                }
-            }, 0, 1000);
+            //Lancement du thread de décodage
+            Thread readingThread = new Thread(new ReadingTask());
+            readingThread.start();
             
-            boolean exit = false;
+            Thread writingThread = new Thread(new WritingTask());
+            writingThread.start();
             
-            //Partie communication PC ---> Arduino
-            while (!exit) {
-                String line = readLine("Envoyer une ligne (ou 'fin') > ");
-            
-                if (line.length() == 0) {
-                    continue;
-                }
-                
-                if ("fin".equals(line)) {
-                    exit = true;
-                    continue;
-                }
-                
-                vcpChannel.getWriter().write(line.getBytes("UTF-8"));
-                vcpChannel.getWriter().write('\n');
+            while (!stop) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) { }
             }
-            
+                
             //Fin de la communication
-            keepAliveTimer.cancel();
+            try {
+                writingThread.interrupt();
+                writingThread.join(1000);
+            } catch (InterruptedException ex) {  }
             
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                logger.error(ex.getClass().getName(), ex);
-            }
-            
-            vcpChannel.getWriter().write('B'); //Disconnect
-            vcpChannel.getWriter().flush();
+                readingThread.interrupt();
+                readingThread.join(1000);
+            } catch (InterruptedException ex) {  }
             
             vcpChannel.close();
-            
-            readingThread.interrupt();
-            try {
-                readingThread.join(1000);
-            } catch (InterruptedException ex) {
-                logger.error(ex.getClass().getName(), ex);
-            }
         } catch (IOException | SerialPortException ex) {
             logger.error(ex.getClass().getName(), ex);
         }
+        
+        logger.info("Fin de l'écoute Arduino");
+        this.stop = true;
+    }
+    
+    public void stop() {
+        this.stop = true;
     }
     
     private String readLine(String header) throws IOException {
@@ -133,6 +119,32 @@ public class Receiver implements Runnable {
         return input.readLine();
     }
     
+    /**
+     * Acquittement avec l'Arduino
+     */
+    private class WritingTask implements Runnable {
+        @Override
+        public void run() {
+            while (!stop) {
+                try {
+                    vcpChannel.getWriter().write('A'); // ACK
+                } catch (IOException ex) {
+                    logger.error(ex.getClass().getName(), ex);
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) { }
+            }
+
+            try {
+                vcpChannel.getWriter().write('B'); // Disconnect
+            } catch (IOException ex) {
+                logger.error(ex.getClass().getName(), ex);
+            }  
+        }
+    }
+        
     /**
      * Décodage des données reçues
      */
@@ -144,44 +156,46 @@ public class Receiver implements Runnable {
             String line;
 
             try {
-                while ((line = vcpInput.readLine()) != null) {
-                    logger.info("Data from Arduino : {}", line);
-                    try {
-                        if(line.startsWith("Measures : ")){
-                            line = line.replaceAll("Measures : ", "");
-                            line = line.replaceAll(" ","");
-                            String[] tempo;
-                            tempo = line.split(",");
-                            Calendar date = Calendar.getInstance();
-                            date.add(Calendar.MILLISECOND, (-1)*Integer.parseInt(tempo[0]));
-                            String[] tempo2;
-                            List<Measure> measures = new LinkedList<Measure>();
-                            for(int i=1; i<tempo.length; i++) {
-                                tempo2=tempo[i].split(":");
-                                if (tempo2.length == 2)
-                                    measures.add(new Measure(Integer.parseInt(tempo2[0]),date,Integer.parseInt(tempo2[1]),computeRealValue(Integer.parseInt(tempo2[0]),Integer.parseInt(tempo2[1]))));
-                                else
+                while (!stop) {
+                    if ((line = vcpInput.readLine()) != null) {
+                        logger.info("Data from Arduino : {}", line);
+                        try {
+                            if(line.startsWith("Measures : ")){
+                                line = line.replaceAll("Measures : ", "");
+                                line = line.replaceAll(" ","");
+                                String[] tempo;
+                                tempo = line.split(",");
+                                Calendar date = Calendar.getInstance();
+                                date.add(Calendar.MILLISECOND, (-1)*Integer.parseInt(tempo[0]));
+                                String[] tempo2;
+                                List<Measure> measures = new LinkedList<Measure>();
+                                for(int i=1; i<tempo.length; i++) {
+                                    tempo2=tempo[i].split(":");
+                                    if (tempo2.length == 2)
+                                        measures.add(new Measure(Integer.parseInt(tempo2[0]),date,Integer.parseInt(tempo2[1]),computeRealValue(Integer.parseInt(tempo2[0]),Integer.parseInt(tempo2[1]))));
+                                    else
+                                        logger.warn("Unknown data !");
+                                }
+                                sendMeasures(measures);
+                            } else if (line.startsWith("PH Calib :")) {
+                                line = line.replaceAll("PH Calib :", "");
+                                line = line.replaceAll(" ","");
+                                String[] data;
+                                data = line.split(",");
+                                if (data.length == 4) {
+                                    Calendar date = Calendar.getInstance();
+                                    date.add(Calendar.MILLISECOND, (-1)*Integer.parseInt(data[0]));
+                                    sendPHCalibration(new PHCalibration(Integer.parseInt(data[1]), date, Integer.parseInt(data[2]), Integer.parseInt(data[3])));
+                                } else
                                     logger.warn("Unknown data !");
                             }
-                            sendMeasures(measures);
-                        } else if (line.startsWith("PH Calib :")) {
-                            line = line.replaceAll("PH Calib :", "");
-                            line = line.replaceAll(" ","");
-                            String[] data;
-                            data = line.split(",");
-                            if (data.length == 4) {
-                                Calendar date = Calendar.getInstance();
-                                date.add(Calendar.MILLISECOND, (-1)*Integer.parseInt(data[0]));
-                                sendPHCalibration(new PHCalibration(Integer.parseInt(data[1]), date, Integer.parseInt(data[2]), Integer.parseInt(data[3])));
-                            } else
-                                logger.warn("Unknown data !");
+                        } catch (NumberFormatException ex) {
+                            logger.error(ex.getClass().getName(), ex);
                         }
-                    } catch (NumberFormatException ex) {
-                        logger.error(ex.getClass().getName(), ex);
                     }
                 }
             } catch (IOException ex) {
-                logger.error(ex.getClass().getName(), ex);
+                //logger.error(ex.getClass().getName(), ex);
             }
         }
     }
