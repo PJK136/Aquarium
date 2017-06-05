@@ -23,12 +23,12 @@ public class TestGlobal {
             //FakeReceiver receiver = new FakeReceiver();
             Recorder recorder = new Recorder(database);
             Monitor monitor = new Monitor(database, 8, "xxx.xxx@xxx.xxx", "xxx.xxx@xxx.xxx", "xxx.xxx@xxx.xxx");
-            Extractor extractor = new Extractor(database);
+            Extractor extractor = new Extractor(database, null, null, null);
             
             receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
             
-            extractor.schedule(60000, 20000, true, true);
+            extractor.schedule(60000, 20000, true, true, false, false);
 
             receiver.run();
             

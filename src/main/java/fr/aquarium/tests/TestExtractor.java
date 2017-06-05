@@ -17,8 +17,8 @@ public class TestExtractor {
             Database database = new Database("PC-TP-MYSQL", 3306, "G221_B_BD1", "G221_B", "G221_B");
             //Database database = new Database("localhost", 3306, "Aquarium", "aquarium", "BocalBocal");
                 
-            Extractor extractor = new Extractor(database);
-            extractor.dumpToJSON(10000);
+            Extractor extractor = new Extractor(database, null, null, null);
+            extractor.dumpToJSON(Extractor.JSON_FILENAME, 10000);
             extractor.dumpToCSV(new GregorianCalendar(2017, Calendar.JANUARY, 1), Calendar.getInstance(), 60);
         } catch (SQLException ex) {
             logger.error("Impossible de se connecter à la BD", ex);

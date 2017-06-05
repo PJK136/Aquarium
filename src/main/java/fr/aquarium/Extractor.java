@@ -13,9 +13,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.google.gson.Gson;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.commons.net.ftp.FTPClient;
 
 public class Extractor {
     private final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -24,14 +27,23 @@ public class Extractor {
     public final static String CSV_FILENAME = "data.csv";
 
     private final Database database;
-
+    
+    private final String server;
+    private final String username;
+    private final String password;
+    
     private Timer timer;
 
-    public Extractor(Database database) {
+    public Extractor(Database database, String server, String username, String password) {
         this.database = database;
+        this.server = server;
+        this.username = username;
+        this.password = password;
     }
 
-    public void schedule(final int interval, final int count, final boolean json, final boolean csv) {
+    public void schedule(final int interval, final int count,
+            final boolean json, final boolean csv,
+            final boolean ftpJSON, final boolean ftpCSV) {
         if (timer != null)
             timer.cancel();
 
@@ -41,9 +53,23 @@ public class Extractor {
             @Override
             public void run() {
                 if (json)
-                    dumpToJSON(count);
+                    dumpToJSON(JSON_FILENAME, count);
                 if (csv)
-                    dumpToCSV(count);
+                    dumpToCSV(CSV_FILENAME, count);
+                if (ftpJSON) {
+                    try {
+                        sendFTP(server, username, password, JSON_FILENAME);
+                    } catch (IOException ex) {
+                        logger.error("Impossible d'envoyer le fichier {} sur le serveur FTP", JSON_FILENAME, ex);
+                    }
+                }
+                if (ftpCSV) {
+                    try {
+                        sendFTP(server, username, password, CSV_FILENAME);
+                    } catch (IOException ex) {
+                        logger.error("Impossible d'envoyer le fichier {} sur le serveur FTP", CSV_FILENAME, ex);
+                    }
+                }
             }
         }, 0, interval);
     }
@@ -59,12 +85,12 @@ public class Extractor {
 
         public JSONSensor(String name) {
             this.name = name;
-            this.data = new LinkedList<List>();
+            this.data = new LinkedList<>();
         }
     }
 
-    public void dumpToJSON(final int count) {
-        dumpToJSON(JSON_FILENAME, new MeasureQuery() {
+    public void dumpToJSON(String filename, final int count) {
+        dumpToJSON(filename, new MeasureQuery() {
             @Override
             public List<Measure> query(int sensorId) {
                 return database.queryLastMeasures(sensorId, count);
@@ -81,13 +107,13 @@ public class Extractor {
         });
     }
 
-    private interface MeasureQuery {
+    public interface MeasureQuery {
         List<Measure> query(int sensorId);
     }
 
     private void dumpToJSON(String filename, MeasureQuery query) {
         List<Sensor> sensors = database.querySensors();
-        List<JSONSensor> jss = new ArrayList<JSONSensor>(sensors.size());
+        List<JSONSensor> jss = new ArrayList<>(sensors.size());
         for (Sensor sensor : sensors) {
             JSONSensor js = new JSONSensor(sensor.getName());
             List<Measure> measures = query.query(sensor.getId());
@@ -131,8 +157,8 @@ public class Extractor {
         }
     }
     
-    public void dumpToCSV(final int count) {
-        dumpToCSV(CSV_FILENAME, new MeasureQuery() {
+    public void dumpToCSV(String filename, final int count) {
+        dumpToCSV(filename, new MeasureQuery() {
             @Override
             public List<Measure> query(int sensorId) {
                 return database.queryLastMeasures(sensorId, count);
@@ -153,6 +179,30 @@ public class Extractor {
             logger.info("Mesures enregistrées en CSV dans {}", filename);
         } catch (FileNotFoundException|UnsupportedEncodingException ex) {
             logger.error("Impossible d'enregistrer les mesures CSV", ex);
+        }
+    }
+    
+    public static void sendFTP(String server, String username, String password, String filename) throws IOException {
+        FTPClient client = new FTPClient();
+        FileInputStream fis = null;
+
+        try {
+            client.connect(server);
+            client.login(username, password);
+
+            // Create an InputStream of the file to be uploaded
+            fis = new FileInputStream(filename);
+
+            // Store file to server
+            client.storeFile(filename, fis);
+            client.logout();
+            
+            logger.info("Fichier {} envoyé sur le serveur FTP", filename);
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+            client.disconnect();
         }
     }
 }

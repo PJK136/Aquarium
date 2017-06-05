@@ -95,6 +95,12 @@ public class MainFrame extends javax.swing.JFrame {
         interval.setValue(settings.interval);
         json.setSelected(settings.json);
         csv.setSelected(settings.csv);
+        
+        ftpServer.setText(settings.ftpServer);
+        ftpUsername.setText(settings.ftpUsername);
+        ftpPassword.setText(settings.ftpPassword);
+        ftpJSON.setSelected(settings.ftpJSON);
+        ftpCSV.setSelected(settings.ftpCSV);
     }
     
     private void updateSettings() {
@@ -125,6 +131,12 @@ public class MainFrame extends javax.swing.JFrame {
         settings.interval = (int) interval.getValue();
         settings.json = json.isSelected();
         settings.csv = csv.isSelected();
+        
+        settings.ftpServer = ftpServer.getText();
+        settings.ftpUsername = ftpUsername.getText();
+        settings.ftpPassword = new String(ftpPassword.getPassword());
+        settings.ftpJSON = ftpJSON.isSelected();
+        settings.ftpCSV = ftpCSV.isSelected();
         
         try {
             settings.save(SETTINGS_FILENAME);
@@ -171,6 +183,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPasswordField2 = new javax.swing.JPasswordField();
         jLabel10 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         mysqlUsername = new javax.swing.JTextField();
@@ -218,15 +231,26 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel19 = new javax.swing.JLabel();
         mysqlServer = new javax.swing.JTextField();
         jLabel20 = new javax.swing.JLabel();
-        filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
         emailTest = new javax.swing.JButton();
-        filler10 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
         filler11 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
         jScrollPane3 = new javax.swing.JScrollPane();
         statusArea = new javax.swing.JTextArea();
         jScrollPane1 = new javax.swing.JScrollPane();
         recipients = new javax.swing.JList<>();
         filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(200, 0), new java.awt.Dimension(200, 0), new java.awt.Dimension(200, 32767));
+        filler13 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 10), new java.awt.Dimension(0, 10), new java.awt.Dimension(32767, 10));
+        filler14 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 10), new java.awt.Dimension(0, 10), new java.awt.Dimension(32767, 10));
+        jLabel21 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        ftpJSON = new javax.swing.JCheckBox();
+        ftpCSV = new javax.swing.JCheckBox();
+        ftpServer = new javax.swing.JTextField();
+        ftpUsername = new javax.swing.JTextField();
+        ftpPassword = new javax.swing.JPasswordField();
+        filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 20), new java.awt.Dimension(0, 20), new java.awt.Dimension(32767, 20));
+        ftpTest = new javax.swing.JButton();
 
         jTextField2.setText("jTextField1");
 
@@ -237,12 +261,15 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel10.setText("Mot de passe : ");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(800, 700));
+        setTitle("Superviseur d'Aquarium");
+        setPreferredSize(new java.awt.Dimension(800, 600));
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 48)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Superviseur d'Aquarium");
         getContentPane().add(jLabel1, java.awt.BorderLayout.PAGE_START);
+
+        jScrollPane2.setBorder(null);
 
         jPanel1.setName(""); // NOI18N
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -514,7 +541,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridy = 26;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(supervisionStart, gridBagConstraints);
@@ -619,12 +646,6 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 12;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         jPanel1.add(jLabel20, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.weighty = 0.1;
-        jPanel1.add(filler9, gridBagConstraints);
 
         emailTest.setText("Tester");
         emailTest.addActionListener(new java.awt.event.ActionListener() {
@@ -639,14 +660,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1.add(emailTest, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 25;
-        gridBagConstraints.gridwidth = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weighty = 0.1;
-        jPanel1.add(filler10, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridy = 27;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel1.add(filler11, gridBagConstraints);
@@ -659,7 +673,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 24;
+        gridBagConstraints.gridy = 28;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel1.add(jScrollPane3, gridBagConstraints);
@@ -677,8 +691,108 @@ public class MainFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         jPanel1.add(filler12, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(filler13, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 29;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(filler14, gridBagConstraints);
 
-        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+        jLabel21.setText("FTP");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(jLabel21, gridBagConstraints);
+
+        jLabel22.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel22.setText("Serveur :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(jLabel22, gridBagConstraints);
+
+        jLabel23.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel23.setText("Identifiant :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 23;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(jLabel23, gridBagConstraints);
+
+        jLabel24.setFont(new java.awt.Font("Dialog", 0, 12)); // NOI18N
+        jLabel24.setText("Mot de passe :");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(jLabel24, gridBagConstraints);
+
+        ftpJSON.setText("JSON");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 23;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(ftpJSON, gridBagConstraints);
+
+        ftpCSV.setText("CSV");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(ftpCSV, gridBagConstraints);
+
+        ftpServer.setToolTipText("");
+        ftpServer.setPreferredSize(new java.awt.Dimension(4, 27));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(ftpServer, gridBagConstraints);
+
+        ftpUsername.setToolTipText("");
+        ftpUsername.setPreferredSize(new java.awt.Dimension(4, 27));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 23;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(ftpUsername, gridBagConstraints);
+
+        ftpPassword.setPreferredSize(new java.awt.Dimension(4, 27));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(ftpPassword, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 25;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(filler9, gridBagConstraints);
+
+        ftpTest.setText("Tester");
+        ftpTest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ftpTestActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 22;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel1.add(ftpTest, gridBagConstraints);
+
+        jScrollPane2.setViewportView(jPanel1);
+
+        getContentPane().add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -773,7 +887,7 @@ public class MainFrame extends javax.swing.JFrame {
         } catch (MessagingException ex) {
             logger.error("Erreur de l'envoi de l'email de test", ex);
             JOptionPane.showMessageDialog(this,
-                    "Impossible d'envoi l'email de test !",
+                    "Impossible d'envoyer l'email de test !",
                     "Erreur durant l'envoi",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -814,7 +928,7 @@ public class MainFrame extends javax.swing.JFrame {
 
             recorder = new Recorder(database);
             monitor = new Monitor(database, fishId, settings.emailUsername, settings.emailPassword, recipientsToString());
-            extractor = new Extractor(database);
+            extractor = new Extractor(database, settings.ftpServer, settings.ftpUsername, settings.ftpPassword);
 
             receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
@@ -846,7 +960,9 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             });
 
-            extractor.schedule(settings.interval * 1000, settings.lastMeasuresCount, settings.json, settings.csv);
+            extractor.schedule(settings.interval*1000, settings.lastMeasuresCount,
+                    settings.json, settings.csv,
+                    settings.ftpJSON, settings.ftpCSV);
 
             stopTriggered = false;
             receiverThread = new Thread(new Runnable() {
@@ -858,6 +974,7 @@ public class MainFrame extends javax.swing.JFrame {
                         public void run() {
                             extractor.cancel();
                             mysqlConnect.setEnabled(true);
+                            mysqlServer.setEnabled(true);
                             mysqlPort.setEnabled(true);
                             mysqlDb.setEnabled(true);
                             mysqlUsername.setEnabled(true);
@@ -876,6 +993,13 @@ public class MainFrame extends javax.swing.JFrame {
                             interval.setEnabled(true);
                             json.setEnabled(true);
                             csv.setEnabled(true);
+                            ftpServer.setEnabled(true);
+                            ftpUsername.setEnabled(true);
+                            ftpPassword.setEnabled(true);
+                            ftpTest.setEnabled(true);
+                            ftpJSON.setEnabled(true);
+                            ftpCSV.setEnabled(true);
+            
                             supervisionStart.setText("Démarrer la supervision");
                             if (stopTriggered == false) {
                                 JOptionPane.showMessageDialog(MainFrame.this,
@@ -891,6 +1015,7 @@ public class MainFrame extends javax.swing.JFrame {
 
             supervisionStart.setText("Supervision en cours...");
             mysqlConnect.setEnabled(false);
+            mysqlServer.setEnabled(false);
             mysqlPort.setEnabled(false);
             mysqlDb.setEnabled(false);
             mysqlUsername.setEnabled(false);
@@ -909,11 +1034,46 @@ public class MainFrame extends javax.swing.JFrame {
             interval.setEnabled(false);
             json.setEnabled(false);
             csv.setEnabled(false);
+            ftpServer.setEnabled(false);
+            ftpUsername.setEnabled(false);
+            ftpPassword.setEnabled(false);
+            ftpTest.setEnabled(false);
+            ftpJSON.setEnabled(false);
+            ftpCSV.setEnabled(false);
         } else {
             stopTriggered = true;
             receiver.stop();
         }
     }//GEN-LAST:event_supervisionStartActionPerformed
+
+    private void ftpTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ftpTestActionPerformed
+        try {
+            updateSettings();
+            if (!settings.ftpJSON && !settings.ftpCSV) {
+                JOptionPane.showMessageDialog(this,
+                    "Aucun fichier n'a été spécifié pour l'envoi sur le serveur FTP",
+                    "Aucun fichié spécifié",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (settings.ftpJSON)
+                Extractor.sendFTP(settings.ftpServer, settings.ftpUsername, settings.ftpPassword, Extractor.JSON_FILENAME);
+            if (settings.ftpCSV)
+                Extractor.sendFTP(settings.ftpServer, settings.ftpUsername, settings.ftpPassword, Extractor.CSV_FILENAME);
+
+            JOptionPane.showMessageDialog(this,
+                    "Le ou les fichiers spécifiés ont bien été envoyés sur le serveur FTP !",
+                    "Envoi sur le serveur FTP",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            logger.error("Erreur durant l'envoi sur le serveur FTP", ex);
+            JOptionPane.showMessageDialog(this,
+                    "Impossible d'envoyer le ou les fichiers spécifiés sur le serveur FTP !",
+                    "Erreur durant l'envoi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_ftpTestActionPerformed
 
     /**
      * @param args the command line arguments
@@ -937,9 +1097,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton emailTest;
     private javax.swing.JTextField emailUsername;
     private javax.swing.Box.Filler filler1;
-    private javax.swing.Box.Filler filler10;
     private javax.swing.Box.Filler filler11;
     private javax.swing.Box.Filler filler12;
+    private javax.swing.Box.Filler filler13;
+    private javax.swing.Box.Filler filler14;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
@@ -949,6 +1110,12 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.Box.Filler filler8;
     private javax.swing.Box.Filler filler9;
     private javax.swing.JComboBox<String> fishNames;
+    private javax.swing.JCheckBox ftpCSV;
+    private javax.swing.JCheckBox ftpJSON;
+    private javax.swing.JPasswordField ftpPassword;
+    private javax.swing.JTextField ftpServer;
+    private javax.swing.JButton ftpTest;
+    private javax.swing.JTextField ftpUsername;
     private javax.swing.JSpinner interval;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -963,6 +1130,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -973,6 +1144,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPasswordField jPasswordField2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField jTextField2;

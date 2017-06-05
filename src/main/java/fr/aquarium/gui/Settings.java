@@ -33,6 +33,12 @@ public class Settings {
     public boolean json;
     public boolean csv;
     
+    public String ftpServer;
+    public String ftpUsername;
+    public String ftpPassword;
+    public boolean ftpJSON;
+    public boolean ftpCSV;
+    
     /**
      * Construit des paramètres par défaut
      */
@@ -55,6 +61,11 @@ public class Settings {
         interval = 60;
         json = true;
         csv = true;
+        
+        ftpUsername = "";
+        ftpPassword = "";
+        ftpJSON = true;
+        ftpCSV = true;
     }
 
     /**
