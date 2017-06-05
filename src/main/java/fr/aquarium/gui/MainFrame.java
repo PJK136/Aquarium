@@ -6,6 +6,8 @@ import fr.aquarium.Extractor;
 import fr.aquarium.Monitor;
 import fr.aquarium.Receiver;
 import fr.aquarium.Recorder;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -41,6 +43,21 @@ public class MainFrame extends javax.swing.JFrame {
         initComponents();
         refreshArduinoPorts();
         loadSettings();
+        
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we) {
+                super.windowClosing(we);
+                if (receiverThread.isAlive()) {
+                    receiver.stop();
+                    try {
+                        receiverThread.join();
+                    } catch (InterruptedException ex) {
+                        logger.error(null, ex);
+                    }
+                }
+            }
+        });
     }
     
     private void loadSettings() {
@@ -767,11 +784,11 @@ public class MainFrame extends javax.swing.JFrame {
                 return;
             }
 
-            //recorder = new Recorder(database);
+            recorder = new Recorder(database);
             monitor = new Monitor(database, fishId, settings.emailUsername, settings.emailPassword, recipientsToString());
             extractor = new Extractor(database);
 
-            //receiver.addMeasureListener(recorder);
+            receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
 
             extractor.schedule(settings.interval * 1000, settings.lastMeasuresCount, settings.json, settings.csv);
