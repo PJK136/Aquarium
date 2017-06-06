@@ -90,7 +90,7 @@
                             <mainClass>${mainClass}</mainClass>
                         </manifest>
                     </archive>
-                    <descriptorRefs>Z
+                    <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                 </configuration>
