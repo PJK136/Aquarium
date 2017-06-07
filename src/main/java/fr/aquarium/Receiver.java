@@ -248,6 +248,10 @@ public class Receiver implements Runnable {
         listeners.remove(listener);
     }
     
+    public void removeAllMeasureListener() {
+        listeners.clear();
+    }
+    
     public void sendMeasures(List<Measure> measures) {
         MeasureEvent event = new MeasureEvent(measures);
         for (MeasureListener listener : listeners) {

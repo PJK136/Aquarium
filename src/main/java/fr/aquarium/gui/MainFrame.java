@@ -930,6 +930,7 @@ public class MainFrame extends javax.swing.JFrame {
             monitor = new Monitor(database, fishId, settings.emailUsername, settings.emailPassword, recipientsToString());
             extractor = new Extractor(database, settings.ftpServer, settings.ftpUsername, settings.ftpPassword);
 
+            receiver.removeAllMeasureListener();
             receiver.addMeasureListener(recorder);
             receiver.addMeasureListener(monitor);
             receiver.addMeasureListener(new MeasureListener() {
