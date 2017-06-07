@@ -75,7 +75,7 @@ public class Monitor implements MeasureListener {
                 (lastEmailSent == null || (new Date().getTime() - lastEmailSent.getTime())/1000 > DELAY_BETWEEN_EMAILS)) {
             StringBuilder builder = new StringBuilder();
             builder.append("Bonjour,\n\n");
-            builder.append("Quelques paramètres de votre aquarium ne semblent pas bonnes :\n");
+            builder.append("Quelques paramètres de votre aquarium ne semblent pas bons :\n");
             for (String problem : problems) {
                 builder.append("- ");
                 builder.append(problem);
