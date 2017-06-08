@@ -65,7 +65,7 @@ public class Monitor implements MeasureListener {
                 problems.add(problem);
             } else if (value<threshold.getMin()){
                 String problem = "La mesure du capteur " + sensor.getName() + " est trop basse : "
-                        + value + unit + " (Min : " + threshold.getMax() + unit + ").";
+                        + value + unit + " (Min : " + threshold.getMin() + unit + ").";
                 logger.error(problem);
                 problems.add(problem);
             }
