@@ -5,3 +5,12 @@
 - 1 PC avec Java
 - 1 serveur MySQL
 - 1 serveur de fichier
+
+## Projet réalisé par :
+- Delaunay Clémentine
+- Du Paul
+- Duraffourg Maud
+- Gibert Christophe
+- Hennequin Noémie
+- Paillat Matthieu
+
