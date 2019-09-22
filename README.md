@@ -22,6 +22,8 @@
 ### Site web résultant
 ![Site web résultant](/screenshots/output.png?raw=true "Site web résultant")
 
+(Exemple : https://pjk136.github.io/Aquarium)
+
 ## Photos de l'équipement
 
 ![Aquarium 1](/screenshots/aquarium1.jpg?raw=true)
