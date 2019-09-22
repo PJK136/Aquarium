@@ -14,3 +14,17 @@
 - Hennequin Noémie
 - Paillat Matthieu
 
+## Captures d'écrans
+
+### Serveur de supervision
+![Serveur de supervision](/screenshots/server.png?raw=true "Serveur de supervision")
+
+### Site web résultant
+![Site web résultant](/screenshots/output.png?raw=true "Site web résultant")
+
+## Photos de l'équipement
+
+![Aquarium 1](/screenshots/aquarium1.jpg?raw=true)
+![Aquarium 2](/screenshots/aquarium2.jpg?raw=true)
+![Aquarium 3](/screenshots/aquarium3.jpg?raw=true)
+
